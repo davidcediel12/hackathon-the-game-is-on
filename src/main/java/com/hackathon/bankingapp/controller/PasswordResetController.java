@@ -2,8 +2,9 @@ package com.hackathon.bankingapp.controller;
 
 
 import com.hackathon.bankingapp.dto.request.OtpRequest;
+import com.hackathon.bankingapp.dto.request.ResetPasswordRequest;
 import com.hackathon.bankingapp.dto.request.ResetTokenRequest;
-import com.hackathon.bankingapp.dto.response.OtpResponse;
+import com.hackathon.bankingapp.dto.response.GenericResponse;
 import com.hackathon.bankingapp.dto.response.ResetTokenResponse;
 import com.hackathon.bankingapp.services.PasswordResetService;
 import jakarta.validation.Valid;
@@ -22,16 +23,23 @@ public class PasswordResetController {
     private final PasswordResetService passwordResetService;
 
     @PostMapping("/send-otp")
-    public ResponseEntity<OtpResponse> sendOtp(@RequestBody @Valid OtpRequest otpRequest) {
+    public ResponseEntity<GenericResponse> sendOtp(@RequestBody @Valid OtpRequest otpRequest) {
         passwordResetService.sendOtp(otpRequest.identifier());
 
         String successMessage = "OTP sent successfully to: " + otpRequest.identifier();
-        return ResponseEntity.ok(new OtpResponse(successMessage));
+        return ResponseEntity.ok(new GenericResponse(successMessage));
     }
 
     @PostMapping("/verify-otp")
     public ResponseEntity<ResetTokenResponse> getResetToken(@Valid @RequestBody ResetTokenRequest otpRequest) {
 
         return ResponseEntity.ok(passwordResetService.getResetToken(otpRequest));
+    }
+
+    @PostMapping
+    public ResponseEntity<GenericResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
+
+        passwordResetService.resetPassword(resetPasswordRequest);
+        return ResponseEntity.ok(new GenericResponse("Password reset successfully"));
     }
 }
