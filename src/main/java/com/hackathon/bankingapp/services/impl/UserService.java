@@ -18,7 +18,7 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByEmail(username)
                 .orElseThrow(() ->
-                        new ApiException("Bad credentials",
+                        new ApiException("User not found for the given identifier: " + username,
                                 new UsernameNotFoundException(username), HttpStatus.BAD_REQUEST));
     }
 }
