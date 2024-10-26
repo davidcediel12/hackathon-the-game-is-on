@@ -5,5 +5,6 @@ import com.hackathon.bankingapp.dto.response.UserRegisterResponse;
 
 public interface AuthenticationService {
 
+
     UserRegisterResponse registerUser(UserRegisterRequest userRegisterRequest);
 }
