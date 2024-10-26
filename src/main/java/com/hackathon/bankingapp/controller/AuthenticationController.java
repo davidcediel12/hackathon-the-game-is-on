@@ -8,6 +8,7 @@ import com.hackathon.bankingapp.dto.response.UserDetailsResponse;
 import com.hackathon.bankingapp.services.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,10 +34,11 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.login(loginRequest));
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestHeader(HttpHeaders.AUTHORIZATION)
+                                       String authorization) {
 
-    @GetMapping("/test")
-    public ResponseEntity<String> sayHi() {
-        System.out.println("hi");
-        return ResponseEntity.ok("2");
+        authenticationService.logout(authorization);
+        return ResponseEntity.ok().build();
     }
 }

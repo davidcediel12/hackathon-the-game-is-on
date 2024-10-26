@@ -18,4 +18,6 @@ public interface TokenService {
     long getExpirationTime();
 
     boolean isTokenValid(String token, UserDetails userDetails);
+
+    boolean isTokenExpired(String token);
 }

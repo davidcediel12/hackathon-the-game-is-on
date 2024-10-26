@@ -7,6 +7,7 @@ import com.hackathon.bankingapp.dto.response.UserDetailsResponse;
 import com.hackathon.bankingapp.entities.User;
 import com.hackathon.bankingapp.exceptions.ApiException;
 import com.hackathon.bankingapp.repositories.UserRepository;
+import com.hackathon.bankingapp.security.JwtBlacklistManager;
 import com.hackathon.bankingapp.services.AccountService;
 import com.hackathon.bankingapp.services.AuthenticationService;
 import com.hackathon.bankingapp.services.TokenService;
@@ -30,6 +31,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
     private final AccountService accountService;
+    private final JwtBlacklistManager jwtBlacklistManager;
 
 
     @Override
@@ -55,6 +57,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String token = tokenService.generateToken(userDetails);
 
         return new Token(token);
+    }
+
+    @Override
+    public void logout(String token) {
+        jwtBlacklistManager.addTokenToBlackList(token);
     }
 
 

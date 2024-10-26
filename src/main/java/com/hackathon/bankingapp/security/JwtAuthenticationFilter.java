@@ -21,6 +21,8 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
+import static com.hackathon.bankingapp.utils.Constants.UNPROTECTED_PATHS;
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -29,6 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final TokenService tokenService;
     private final UserDetailsService userDetailsService;
     private final HandlerExceptionResolver handlerExceptionResolver;
+    private final JwtBlacklistManager jwtBlacklistManager;
 
     @Value("${jwt.header}")
     private String authHeader;
@@ -40,11 +43,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        String uri = request.getRequestURI().replaceFirst("/", "");
+        boolean isUnprotectedPath = UNPROTECTED_PATHS.contains(uri);
+        if(isUnprotectedPath){
+            doFilter(request, response, filterChain);
+            return;
+        }
+
         ApiException deniedAccessException = new ApiException("Access Denied", HttpStatus.UNAUTHORIZED);
         final String authHeaderValue = request.getHeader(authHeader);
 
         try {
-            if (authHeaderValue == null || !authHeaderValue.startsWith(authPrefix)) {
+            if (authHeaderValue == null || !authHeaderValue.startsWith(authPrefix)
+                    || jwtBlacklistManager.isBlackListed(authHeaderValue)) {
                 throw deniedAccessException;
             }
 
