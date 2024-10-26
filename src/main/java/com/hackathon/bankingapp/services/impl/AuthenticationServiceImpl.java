@@ -37,7 +37,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     @Transactional
     public UserDetailsResponse registerUser(UserRegisterRequest userRegisterRequest) {
-        validateEmailAndPhoneuniqueness(userRegisterRequest);
+        validateEmailAndPhoneUniqueness(userRegisterRequest);
 
         String encodedPassword = passwordEncoder.encode(userRegisterRequest.password());
 
@@ -65,7 +65,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
 
-    private void validateEmailAndPhoneuniqueness(UserRegisterRequest userRegisterRequest) {
+    private void validateEmailAndPhoneUniqueness(UserRegisterRequest userRegisterRequest) {
         if (userRepository.existsByEmailIgnoreCase(userRegisterRequest.email())) {
             throw new ApiException("Email already exists", HttpStatus.BAD_REQUEST);
         }

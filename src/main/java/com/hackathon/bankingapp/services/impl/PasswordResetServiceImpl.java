@@ -13,11 +13,11 @@ import com.hackathon.bankingapp.repositories.UserRepository;
 import com.hackathon.bankingapp.services.OtpGeneratorService;
 import com.hackathon.bankingapp.services.PasswordResetService;
 import com.hackathon.bankingapp.services.email.EmailService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 

@@ -25,6 +25,6 @@ public class Account {
     @Column(nullable = false)
     BigDecimal balance;
 
-    @OneToOne
+    @OneToOne(optional = false)
     User user;
 }

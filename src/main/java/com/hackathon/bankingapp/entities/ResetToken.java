@@ -21,13 +21,15 @@ public class ResetToken {
     @GeneratedValue
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private User user;
 
+    @Column(nullable = false)
     private String token;
 
     @CreatedDate
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
     private Boolean used;
 }

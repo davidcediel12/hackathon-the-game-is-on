@@ -21,14 +21,16 @@ public class OtpCode {
     @GeneratedValue
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private User user;
 
+    @Column(nullable = false)
     private String code;
 
     @CreatedDate
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
     private Boolean used;
 
 }
