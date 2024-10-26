@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class ApiControllerAdvice {
 
     @ExceptionHandler(ApiException.class)
-    public ResponseEntity<String> handleApiException(ApiException apiException){
+    public ResponseEntity<String> handleApiException(ApiException apiException) {
         return new ResponseEntity<>(apiException.getMessage(), apiException.getStatus());
     }
 
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException badCredentialsException){
+    public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException badCredentialsException) {
         return new ResponseEntity<>("Bad credentials", HttpStatus.UNAUTHORIZED);
     }
 }
