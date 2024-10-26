@@ -17,7 +17,7 @@ public class Account {
 
     @Id
     @GeneratedValue
-    String id;
+    Long id;
 
     @Column(nullable = false)
     String accountId;

@@ -23,6 +23,7 @@ public class AccountServiceImpl implements AccountService {
         Account account = Account.builder()
                 .accountId(accountId)
                 .balance(BigDecimal.ZERO)
+                .user(user)
                 .build();
 
 
