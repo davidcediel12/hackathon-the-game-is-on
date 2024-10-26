@@ -7,6 +7,7 @@ import com.hackathon.bankingapp.dto.response.UserRegisterResponse;
 import com.hackathon.bankingapp.entities.User;
 import com.hackathon.bankingapp.exceptions.ApiException;
 import com.hackathon.bankingapp.repositories.UserRepository;
+import com.hackathon.bankingapp.services.AccountService;
 import com.hackathon.bankingapp.services.AuthenticationService;
 import com.hackathon.bankingapp.services.TokenService;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +29,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
+    private final AccountService accountService;
 
 
     @Override
@@ -38,13 +38,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         validateEmailAndPhoneuniqueness(userRegisterRequest);
 
         String encodedPassword = passwordEncoder.encode(userRegisterRequest.password());
-        UUID accountNumber = UUID.randomUUID();
 
-        User user = createUser(userRegisterRequest, encodedPassword, accountNumber);
-        userRepository.save(user);
+        User user = createUserAndAccount(userRegisterRequest, encodedPassword);
 
 
-        return createUserResponse(userRegisterRequest, encodedPassword, accountNumber);
+        return createUserResponse(userRegisterRequest, encodedPassword, user.getAccount().getAccountId());
     }
 
     @Override
@@ -71,23 +69,26 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     private UserRegisterResponse createUserResponse(UserRegisterRequest userRegisterRequest,
-                                                    String encodedPassword, UUID accountNumber) {
+                                                    String encodedPassword, String accountNumber) {
 
         return new UserRegisterResponse(userRegisterRequest.name(), encodedPassword,
                 userRegisterRequest.email(), userRegisterRequest.address(), userRegisterRequest.phoneNumber(),
-                accountNumber.toString(), encodedPassword);
+                accountNumber, encodedPassword);
     }
 
-    private User createUser(UserRegisterRequest userRegisterRequest, String encodedPassword,
-                            UUID accountNumber) {
+    private User createUserAndAccount(UserRegisterRequest userRegisterRequest, String encodedPassword) {
 
-        return User.builder()
+
+        User user = User.builder()
                 .name(userRegisterRequest.name())
                 .address(userRegisterRequest.address())
                 .email(userRegisterRequest.email())
                 .password(encodedPassword)
                 .phoneNumber(userRegisterRequest.phoneNumber())
-                .accountNumber(accountNumber.toString())
                 .build();
+
+        user = userRepository.save(user);
+        user.setAccount(accountService.createAccount(user));
+        return user;
     }
 }

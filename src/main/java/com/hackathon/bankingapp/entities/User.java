@@ -2,9 +2,7 @@ package com.hackathon.bankingapp.entities;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -13,6 +11,8 @@ import java.util.List;
 
 @Entity
 @Table
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -33,8 +33,9 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true)
     String phoneNumber;
 
-    @Column(nullable = false, unique = true)
-    String accountNumber;
+    @OneToOne(mappedBy = "user")
+    Account account;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
