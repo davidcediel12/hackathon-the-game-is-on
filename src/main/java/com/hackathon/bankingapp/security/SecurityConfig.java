@@ -16,8 +16,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static com.hackathon.bankingapp.utils.Constants.UNPROTECTED_PATHS;
-
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
@@ -52,7 +50,7 @@ public class SecurityConfig {
                         sessionManagementCustomizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers(UNPROTECTED_PATHS.toArray(new String[0])).permitAll()
+                        .requestMatchers("api/users/**", "api/auth/password-reset/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

@@ -7,7 +7,8 @@ public class Constants {
     private Constants(){}
 
     public static final Set<String> UNPROTECTED_PATHS = Set.of("api/users/register",
-            "api/users/login", "api/auth/password-reset/send-otp");
+            "api/users/login", "api/auth/password-reset/send-otp",
+            "api/auth/password-reset/verify-otp");
 
 
 }
