@@ -1,4 +1,4 @@
-package com.hackathon.bankingapp.securityconfig;
+package com.hackathon.bankingapp.security;
 
 
 import org.springframework.context.annotation.Bean;
