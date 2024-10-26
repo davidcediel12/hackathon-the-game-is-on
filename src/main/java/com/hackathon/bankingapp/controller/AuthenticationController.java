@@ -2,7 +2,7 @@ package com.hackathon.bankingapp.controller;
 
 
 import com.hackathon.bankingapp.dto.request.UserRegisterRequest;
-import com.hackathon.bankingapp.dto.response.UserRegistrationResponse;
+import com.hackathon.bankingapp.dto.response.UserRegisterResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
 
     @PostMapping("/users/register")
-    public ResponseEntity<UserRegistrationResponse> registerUser(@RequestBody @Valid
+    public ResponseEntity<UserRegisterResponse> registerUser(@RequestBody @Valid
                                                                  UserRegisterRequest userRegisterRequest){
 
         return ResponseEntity.ok(null);
