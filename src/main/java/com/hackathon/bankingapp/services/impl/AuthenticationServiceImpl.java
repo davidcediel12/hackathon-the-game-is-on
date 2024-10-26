@@ -1,6 +1,8 @@
 package com.hackathon.bankingapp.services.impl;
 
+import com.hackathon.bankingapp.dto.request.LoginRequest;
 import com.hackathon.bankingapp.dto.request.UserRegisterRequest;
+import com.hackathon.bankingapp.dto.response.Token;
 import com.hackathon.bankingapp.dto.response.UserRegisterResponse;
 import com.hackathon.bankingapp.entities.User;
 import com.hackathon.bankingapp.exceptions.ApiException;
@@ -8,6 +10,9 @@ import com.hackathon.bankingapp.repositories.UserRepository;
 import com.hackathon.bankingapp.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +27,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
 
     @Override
@@ -37,6 +43,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 
         return createUserResponse(userRegisterRequest, encodedPassword, accountNumber);
+    }
+
+    @Override
+    public Token login(LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.identifier(), loginRequest.password()));
+
+        User userDetails = (User) authentication.getPrincipal();
+
+        return null;
     }
 
 
