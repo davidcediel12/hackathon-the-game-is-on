@@ -8,6 +8,7 @@ import com.hackathon.bankingapp.entities.User;
 import com.hackathon.bankingapp.exceptions.ApiException;
 import com.hackathon.bankingapp.repositories.UserRepository;
 import com.hackathon.bankingapp.services.AuthenticationService;
+import com.hackathon.bankingapp.services.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +29,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final TokenService tokenService;
 
 
     @Override
@@ -52,7 +54,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         User userDetails = (User) authentication.getPrincipal();
 
-        return null;
+        String token = tokenService.generateToken(userDetails);
+
+        return new Token(token);
     }
 
 
