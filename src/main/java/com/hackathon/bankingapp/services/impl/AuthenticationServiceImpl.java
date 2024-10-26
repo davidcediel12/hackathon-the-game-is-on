@@ -3,7 +3,7 @@ package com.hackathon.bankingapp.services.impl;
 import com.hackathon.bankingapp.dto.request.LoginRequest;
 import com.hackathon.bankingapp.dto.request.UserRegisterRequest;
 import com.hackathon.bankingapp.dto.response.Token;
-import com.hackathon.bankingapp.dto.response.UserRegisterResponse;
+import com.hackathon.bankingapp.dto.response.UserDetailsResponse;
 import com.hackathon.bankingapp.entities.User;
 import com.hackathon.bankingapp.exceptions.ApiException;
 import com.hackathon.bankingapp.repositories.UserRepository;
@@ -34,7 +34,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     @Transactional
-    public UserRegisterResponse registerUser(UserRegisterRequest userRegisterRequest) {
+    public UserDetailsResponse registerUser(UserRegisterRequest userRegisterRequest) {
         validateEmailAndPhoneuniqueness(userRegisterRequest);
 
         String encodedPassword = passwordEncoder.encode(userRegisterRequest.password());
@@ -68,10 +68,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
-    private UserRegisterResponse createUserResponse(UserRegisterRequest userRegisterRequest,
-                                                    String encodedPassword, String accountNumber) {
+    private UserDetailsResponse createUserResponse(UserRegisterRequest userRegisterRequest,
+                                                   String encodedPassword, String accountNumber) {
 
-        return new UserRegisterResponse(userRegisterRequest.name(), encodedPassword,
+        return new UserDetailsResponse(userRegisterRequest.name(),
                 userRegisterRequest.email(), userRegisterRequest.address(), userRegisterRequest.phoneNumber(),
                 accountNumber, encodedPassword);
     }

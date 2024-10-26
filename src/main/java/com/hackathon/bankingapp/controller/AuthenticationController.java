@@ -4,7 +4,7 @@ package com.hackathon.bankingapp.controller;
 import com.hackathon.bankingapp.dto.request.LoginRequest;
 import com.hackathon.bankingapp.dto.request.UserRegisterRequest;
 import com.hackathon.bankingapp.dto.response.Token;
-import com.hackathon.bankingapp.dto.response.UserRegisterResponse;
+import com.hackathon.bankingapp.dto.response.UserDetailsResponse;
 import com.hackathon.bankingapp.services.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +19,8 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public ResponseEntity<UserRegisterResponse> registerUser(@RequestBody @Valid
-                                                             UserRegisterRequest userRegisterRequest) {
+    public ResponseEntity<UserDetailsResponse> registerUser(@RequestBody @Valid
+                                                            UserRegisterRequest userRegisterRequest) {
 
         return ResponseEntity.ok(authenticationService.registerUser(userRegisterRequest));
     }
@@ -34,8 +34,9 @@ public class AuthenticationController {
     }
 
 
-    @GetMapping
+    @GetMapping("/test")
     public ResponseEntity<String> sayHi() {
+        System.out.println("hi");
         return ResponseEntity.ok("2");
     }
 }
