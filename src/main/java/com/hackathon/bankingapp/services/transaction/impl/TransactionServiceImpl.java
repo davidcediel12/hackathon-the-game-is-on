@@ -12,6 +12,7 @@ import com.hackathon.bankingapp.repositories.TransactionRepository;
 import com.hackathon.bankingapp.services.customer.AccountService;
 import com.hackathon.bankingapp.services.transaction.TransactionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TransactionServiceImpl implements TransactionService {
 
     private final AccountService accountService;
@@ -42,9 +44,17 @@ public class TransactionServiceImpl implements TransactionService {
     @Transactional
     public void withdrawMoney(TransactionRequest transactionRequest) {
         Account account = getAccountAndValidatePin(transactionRequest.pin());
-
         subtractMoney(transactionRequest.amount(), account);
         saveTransaction(transactionRequest.amount(), account, null, TransactionType.CASH_WITHDRAWAL);
+    }
+
+    @Override
+    @Transactional
+    public void performAutomaticPayment(Long accountId, BigDecimal amount) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new ApiException("Account not found", HttpStatus.INTERNAL_SERVER_ERROR));
+        subtractMoney(amount, account);
+        saveTransaction(amount, account, null, TransactionType.SUBSCRIPTION);
     }
 
 
@@ -98,6 +108,8 @@ public class TransactionServiceImpl implements TransactionService {
         boolean isNegativeBalance = newBalance.compareTo(BigDecimal.ZERO) < 0;
 
         if (isNegativeBalance) {
+            log.warn("Insufficient balance to perform the subtraction, balance {}, subtract intent {}",
+                    account.getBalance(), value);
             throw new ApiException("Insufficient balance", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         account.setBalance(newBalance);

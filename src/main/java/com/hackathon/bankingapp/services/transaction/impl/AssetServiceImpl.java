@@ -108,7 +108,8 @@ public class AssetServiceImpl implements AssetService {
                 .map(asset -> asset.getAssetAmount().multiply(asset.getAveragePriceBought()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return assetsWorth.add(account.getBalance()).setScale(12, RoundingMode.HALF_UP);
+        return assetsWorth.add(account.getBalance()).setScale(12, RoundingMode.HALF_UP)
+                .stripTrailingZeros();
     }
 
     private AssetTransaction createSellAssetTransaction(AssetSaleRequest saleRequest, Asset asset,

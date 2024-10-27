@@ -46,7 +46,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public AccountDetailResponse getLoggedInUserAccount() {
         Account account = getUserAccount();
-        return new AccountDetailResponse(account.getAccountId(), account.getBalance());
+        return new AccountDetailResponse(account.getAccountId(), account.getBalance().stripTrailingZeros());
     }
 
 
