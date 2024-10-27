@@ -1,6 +1,7 @@
 package com.hackathon.bankingapp.controller.transaction;
 
 import com.hackathon.bankingapp.dto.request.transaction.PaymentSubscriptionRequest;
+import com.hackathon.bankingapp.services.transaction.InvestmentBotService;
 import com.hackathon.bankingapp.services.transaction.PaymentSubscriptionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SubscriptionController {
 
     private final PaymentSubscriptionService paymentSubscriptionService;
+    private final InvestmentBotService investmentBotService;
 
 
     @PostMapping("/subscribe")
@@ -24,6 +26,13 @@ public class SubscriptionController {
 
         paymentSubscriptionService.scheduleSubscription(paymentSubscriptionRequest);
         return ResponseEntity.ok().body("Subscription created successfully.");
+    }
+
+    @PostMapping("/enable-auto-invest")
+    public ResponseEntity<String> enableAutoInvest(@Valid @RequestBody InvestmentBotRequest investmentBotRequest) {
+
+        investmentBotService.startInvestmentBot(investmentBotRequest.pin());
+        return ResponseEntity.ok().body("Automatic investment enabled successfully.");
     }
 
 

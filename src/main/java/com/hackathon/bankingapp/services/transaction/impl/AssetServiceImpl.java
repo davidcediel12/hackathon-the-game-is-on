@@ -55,8 +55,7 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public void buyAsset(String assetSymbol, BigDecimal amount) {
-        Account account = accountService.getUserAccount();
+    public void buyAsset(Account account, String assetSymbol, BigDecimal amount) {
         buyAsset(amount, assetSymbol, account);
     }
 
@@ -73,8 +72,7 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     @Transactional
-    public void sellAsset(String assetSymbol, BigDecimal quantity) {
-        Account account = accountService.getUserAccount();
+    public void sellAsset(Account account, String assetSymbol, BigDecimal quantity) {
         sellAsset(quantity, assetSymbol, account);
     }
 

@@ -57,11 +57,12 @@ public class InvestmentBotServiceImpl implements InvestmentBotService {
             try {
                 this.analyzeAssets(accountId);
             } catch (RuntimeException e) {
+                log.warn("Stopping bot task due tue an error ", e);
                 cancelTask(accountId);
             }
         };
 
-        schedulePayment(accountId, task, 30);
+        schedulePayment(accountId, task, 10);
     }
 
     public void schedulePayment(Long accountId, Runnable task, long delay) {
@@ -113,7 +114,7 @@ public class InvestmentBotServiceImpl implements InvestmentBotService {
             BigDecimal percentageChangeThreshold = BigDecimal.valueOf(0.1);
 
 
-            boolean changeMeetThreshold = percentageChangeThreshold.abs().compareTo(percentagePriceChange) >= 0;
+            boolean changeMeetThreshold = percentagePriceChange.abs().compareTo(percentageChangeThreshold) >= 0;
             if (changeMeetThreshold) {
                 boolean isCheaper = percentagePriceChange.compareTo(BigDecimal.ZERO) <= 0;
                 if (isCheaper) {
@@ -124,10 +125,14 @@ public class InvestmentBotServiceImpl implements InvestmentBotService {
                     BigDecimal assetToSell = assetQuantity.multiply(
                             max(percentagePriceChange, BigDecimal.valueOf(0.3)));
 
-                    assetService.sellAsset(asset.getAssetSymbol(), assetToSell);
-                    log.info("Sell {} of {} at price {}, profit percentage {}",
-                            asset.getAssetAmount(), asset.getAssetSymbol(), currentAssetPrice, percentagePriceChange);
+                    assetService.sellAsset(account, asset.getAssetSymbol(), assetToSell);
+                    log.info("Sell {} of {} at price {} (avg price bought {}), profit percentage {}",
+                            asset.getAssetAmount(), asset.getAssetSymbol(), currentAssetPrice,
+                            asset.getAveragePriceBought(), percentagePriceChange);
                 }
+            } else {
+                log.info("The percentage change between the avg price {} and actual price {} is not worth it to exchange ({})",
+                        asset.getAveragePriceBought(), currentAssetPrice, percentagePriceChange);
             }
         }
     }
@@ -142,9 +147,9 @@ public class InvestmentBotServiceImpl implements InvestmentBotService {
 
         BigDecimal amountToBuy = availableAmountPerAsset.multiply(amountPercentageToSpend);
 
-        assetService.buyAsset(asset.getAssetSymbol(), amountToBuy);
-        log.info("Bot: Buy {} of {} at price {}, profit percentage: {}",
-                amountToBuy, asset.getAssetSymbol(), currentAssetPrice, percentagePriceChange);
+        assetService.buyAsset(account, asset.getAssetSymbol(), amountToBuy);
+        log.info("Bot: Buy {} of {} at price {} (average price bought {}), profit percentage: {}",
+                amountToBuy, asset.getAssetSymbol(), currentAssetPrice, asset.getAveragePriceBought(), percentagePriceChange);
     }
 
     private BigDecimal max(BigDecimal x, BigDecimal y) {
