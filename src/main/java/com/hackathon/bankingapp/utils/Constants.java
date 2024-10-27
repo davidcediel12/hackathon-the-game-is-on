@@ -20,7 +20,6 @@ public class Constants {
             Current holdings of %s: %f units
             
             Summary of current assets:
-            
             """;
 
     public static final String MAIL_PURCHASE_ASSET_END = """            
@@ -33,6 +32,8 @@ public class Constants {
             Investment Management Team
             """;
 
-    public static final String ASSET_SUMMARY_LINE = "%s: %f units purchased at $%f";
+    public static final String ASSET_SUMMARY_LINE = """
+            - %s: %f units purchased at $%f
+            """;
 
 }

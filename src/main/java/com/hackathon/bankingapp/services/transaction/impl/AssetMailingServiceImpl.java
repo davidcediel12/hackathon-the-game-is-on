@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.hackathon.bankingapp.utils.Constants.*;
@@ -32,10 +33,10 @@ public class AssetMailingServiceImpl implements AssetMailingService {
                                          AssetTransaction assetTransaction) {
 
 
-        String initialMailPart = MAIL_PURCHASE_ASSET_INITIAL
-                .formatted(asset.getAssetAmount(), asset.getAssetSymbol(),
-                        assetTransaction.getTransactionValue(),
-                        asset.getAssetSymbol(), asset.getAssetAmount());
+        String initialMailPart = String.format(Locale.US, MAIL_PURCHASE_ASSET_INITIAL,
+                asset.getAssetAmount(), asset.getAssetSymbol(),
+                assetTransaction.getTransactionValue(),
+                asset.getAssetSymbol(), asset.getAssetAmount());
 
         StringBuilder allAssetsString = new StringBuilder();
         BigDecimal totalWorth = account.getBalance();
@@ -49,11 +50,8 @@ public class AssetMailingServiceImpl implements AssetMailingService {
             allAssetsString.append(assetLine).append("\n");
         }
 
-        if (!allUserAssets.isEmpty()) {
-            allAssetsString.deleteCharAt(allAssetsString.length() - 1);
-        }
-
-        String finalMailPart = MAIL_PURCHASE_ASSET_END.formatted(account.getBalance(), totalWorth);
+        String finalMailPart = String.format(Locale.US,
+                MAIL_PURCHASE_ASSET_END.formatted(account.getBalance(), totalWorth));
 
         String completeMailBody = initialMailPart + allAssetsString + finalMailPart;
 
@@ -83,7 +81,7 @@ public class AssetMailingServiceImpl implements AssetMailingService {
 
         BigDecimal finalPrice = averagePrice.get().multiply(asset.getAssetAmount());
 
-        String assetDescription = ASSET_SUMMARY_LINE.formatted(
+        String assetDescription = String.format(Locale.US, ASSET_SUMMARY_LINE,
                 asset.getAssetSymbol(), asset.getAssetAmount(), finalPrice);
 
         return new AssetSummary(assetDescription, finalPrice);
