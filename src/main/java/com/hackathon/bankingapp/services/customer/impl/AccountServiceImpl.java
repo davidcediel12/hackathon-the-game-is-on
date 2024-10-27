@@ -78,8 +78,8 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(account);
     }
 
-
-    private  Account getUserAccount() {
+    @Override
+    public Account getUserAccount() {
         User user = getLoggedInUser();
         return user.getAccount();
     }

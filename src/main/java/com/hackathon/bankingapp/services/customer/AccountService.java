@@ -14,4 +14,6 @@ public interface AccountService {
 
     void assignPin(AssignPinRequest assignPinRequest);
     void updatePin(UpdatePinRequest assignPinRequest);
+
+    Account getUserAccount();
 }
