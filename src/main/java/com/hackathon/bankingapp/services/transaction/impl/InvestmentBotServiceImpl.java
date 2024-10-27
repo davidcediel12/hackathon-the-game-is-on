@@ -127,7 +127,7 @@ public class InvestmentBotServiceImpl implements InvestmentBotService {
 
                     assetService.sellAsset(account, asset.getAssetSymbol(), assetToSell);
                     log.info("Sell {} of {} at price {} (avg price bought {}), profit percentage {}",
-                            asset.getAssetAmount(), asset.getAssetSymbol(), currentAssetPrice,
+                            assetToSell, asset.getAssetSymbol(), currentAssetPrice,
                             asset.getAveragePurchasedPrice(), percentagePriceChange);
                 }
             } else {
