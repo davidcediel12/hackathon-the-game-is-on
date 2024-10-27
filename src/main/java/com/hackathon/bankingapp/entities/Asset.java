@@ -23,6 +23,12 @@ public class Asset {
     @Column(nullable = false, precision = 38, scale = 16)
     private BigDecimal assetAmount;
 
+    @Column(nullable = false, precision = 38, scale = 16)
+    private BigDecimal totalAssetBought;
+
+    @Column(nullable = false, precision = 38, scale = 16)
+    private BigDecimal averagePriceBought;
+
     @ManyToOne(optional = false)
     private Account account;
 }

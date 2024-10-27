@@ -3,7 +3,6 @@ package com.hackathon.bankingapp.services.transaction.impl;
 import com.hackathon.bankingapp.entities.Account;
 import com.hackathon.bankingapp.entities.Asset;
 import com.hackathon.bankingapp.entities.AssetTransaction;
-import com.hackathon.bankingapp.entities.AssetTransactionType;
 import com.hackathon.bankingapp.repositories.AssetRepository;
 import com.hackathon.bankingapp.repositories.AssetTransactionRepository;
 import com.hackathon.bankingapp.services.email.EmailService;
@@ -12,10 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.hackathon.bankingapp.utils.Constants.*;
 
@@ -62,24 +59,7 @@ public class AssetMailingServiceImpl implements AssetMailingService {
 
     private AssetSummary obtainAssetAverages(Asset asset) {
 
-
-        List<AssetTransaction> assetTransactions = assetTransactionRepository.findByAsset(asset);
-
-        AtomicReference<BigDecimal> averagePrice = new AtomicReference<>(BigDecimal.ZERO);
-        AtomicReference<BigDecimal> totalAssetBought = new AtomicReference<>(BigDecimal.ZERO);
-
-        assetTransactions.stream()
-                .filter(transaction -> transaction.getTransactionType().equals(AssetTransactionType.PURCHASE))
-                .forEach(transaction -> {
-                    totalAssetBought.updateAndGet(assetAmount -> assetAmount.add(transaction.getAmount()));
-                    averagePrice.updateAndGet(amountSpend -> amountSpend.add(
-                            transaction.getAmount().multiply(transaction.getPrice())));
-                });
-
-        averagePrice.updateAndGet(price -> price.divide(
-                totalAssetBought.get(), 16, RoundingMode.HALF_UP));
-
-        BigDecimal finalPrice = averagePrice.get().multiply(asset.getAssetAmount());
+        BigDecimal finalPrice = asset.getAveragePriceBought().multiply(asset.getAssetAmount());
 
         String assetDescription = String.format(Locale.US, ASSET_SUMMARY_LINE,
                 asset.getAssetSymbol(), asset.getAssetAmount(), finalPrice);

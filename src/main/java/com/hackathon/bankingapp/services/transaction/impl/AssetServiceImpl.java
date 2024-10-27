@@ -52,7 +52,7 @@ public class AssetServiceImpl implements AssetService {
         BigDecimal assetQuantity = transactionRequest.amount()
                 .divide(assetPrice, 16, RoundingMode.HALF_UP);
 
-        Asset asset = saveAsset(transactionRequest, account, assetQuantity);
+        Asset asset = saveAsset(transactionRequest, account, assetQuantity, assetPrice);
 
         AssetTransaction assetTransaction = saveAssetTransaction(transactionRequest, assetQuantity, assetPrice, asset);
 
@@ -67,7 +67,9 @@ public class AssetServiceImpl implements AssetService {
         }
     }
 
-    private Asset saveAsset(AssetTransactionRequest transactionRequest, Account account, BigDecimal assetQuantity) {
+    private Asset saveAsset(AssetTransactionRequest transactionRequest, Account account,
+                            BigDecimal assetQuantity, BigDecimal assetPrice) {
+
         Optional<Asset> assetOpt = assetRepository.findByAssetSymbolAndAccount(
                 transactionRequest.assetSymbol(), account);
 
@@ -77,10 +79,22 @@ public class AssetServiceImpl implements AssetService {
 
             BigDecimal newAssetAmount = asset.getAssetAmount().add(assetQuantity);
             asset.setAssetAmount(newAssetAmount);
+
+            BigDecimal averagePriceBought = asset.getAveragePriceBought();
+            BigDecimal unitsBought = asset.getTotalAssetBought();
+
+            averagePriceBought = ((averagePriceBought.multiply(unitsBought)).add(assetQuantity.multiply(assetPrice)))
+                    .divide(averagePriceBought.add(assetQuantity), 16, RoundingMode.HALF_UP);
+
+            asset.setAveragePriceBought(averagePriceBought);
+            asset.setTotalAssetBought(asset.getTotalAssetBought().add(assetQuantity));
+
         } else {
             asset = Asset.builder()
                     .assetSymbol(transactionRequest.assetSymbol())
                     .assetAmount(assetQuantity)
+                    .totalAssetBought(assetQuantity)
+                    .averagePriceBought(assetPrice)
                     .account(account)
                     .build();
         }
