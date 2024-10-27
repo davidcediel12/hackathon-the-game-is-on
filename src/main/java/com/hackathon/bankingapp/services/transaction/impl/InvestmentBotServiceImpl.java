@@ -62,7 +62,7 @@ public class InvestmentBotServiceImpl implements InvestmentBotService {
             }
         };
 
-        scheduleInvestment(accountId, task, 30);
+        scheduleInvestment(accountId, task, 10);
     }
 
     public void scheduleInvestment(Long accountId, Runnable task, long delay) {
@@ -111,7 +111,7 @@ public class InvestmentBotServiceImpl implements InvestmentBotService {
             BigDecimal percentagePriceChange = (currentAssetPrice.subtract(averagePriceBought))
                     .divide(averagePriceBought, 16, RoundingMode.HALF_UP);
 
-            BigDecimal percentageChangeThreshold = BigDecimal.valueOf(0.1);
+            BigDecimal percentageChangeThreshold = BigDecimal.valueOf(0.05);
 
 
             boolean changeMeetThreshold = percentagePriceChange.abs().compareTo(percentageChangeThreshold) >= 0;
