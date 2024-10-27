@@ -24,10 +24,10 @@ public class Asset {
     private BigDecimal assetAmount;
 
     @Column(nullable = false, precision = 38, scale = 16)
-    private BigDecimal totalAssetBought;
+    private BigDecimal totalPurchasedAssets;
 
     @Column(nullable = false, precision = 38, scale = 16)
-    private BigDecimal averagePriceBought;
+    private BigDecimal averagePurchasedPrice;
 
     @ManyToOne(optional = false)
     private Account account;

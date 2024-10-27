@@ -113,7 +113,7 @@ public class AssetServiceImpl implements AssetService {
         Account account = accountService.getUserAccount();
 
         BigDecimal assetsWorth = assetRepository.findByAccount(account).stream()
-                .map(asset -> asset.getAssetAmount().multiply(asset.getAveragePriceBought()))
+                .map(asset -> asset.getAssetAmount().multiply(asset.getAveragePurchasedPrice()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return assetsWorth.add(account.getBalance()).setScale(12, RoundingMode.HALF_UP)
@@ -193,21 +193,22 @@ public class AssetServiceImpl implements AssetService {
             BigDecimal newAssetAmount = asset.getAssetAmount().add(assetQuantity);
             asset.setAssetAmount(newAssetAmount);
 
-            BigDecimal averagePriceBought = asset.getAveragePriceBought();
-            BigDecimal unitsBought = asset.getTotalAssetBought();
+            BigDecimal averagePurchasedPrice = asset.getAveragePurchasedPrice();
+            BigDecimal purchasedUnits = asset.getTotalPurchasedAssets();
 
-            averagePriceBought = ((averagePriceBought.multiply(unitsBought)).add(assetQuantity.multiply(assetPrice)))
+            averagePurchasedPrice = ((averagePurchasedPrice.multiply(purchasedUnits))
+                    .add(assetQuantity.multiply(assetPrice)))
                     .divide(newAssetAmount, 16, RoundingMode.HALF_UP);
 
-            asset.setAveragePriceBought(averagePriceBought);
-            asset.setTotalAssetBought(asset.getTotalAssetBought().add(assetQuantity));
+            asset.setAveragePurchasedPrice(averagePurchasedPrice);
+            asset.setTotalPurchasedAssets(purchasedUnits.add(assetQuantity));
 
         } else {
             asset = Asset.builder()
                     .assetSymbol(assetSymbol)
                     .assetAmount(assetQuantity)
-                    .totalAssetBought(assetQuantity)
-                    .averagePriceBought(assetPrice)
+                    .totalPurchasedAssets(assetQuantity)
+                    .averagePurchasedPrice(assetPrice)
                     .account(account)
                     .build();
         }

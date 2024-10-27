@@ -106,7 +106,7 @@ public class InvestmentBotServiceImpl implements InvestmentBotService {
 
             BigDecimal currentAssetPrice = currentAssetPrices.get(asset.getAssetSymbol());
 
-            BigDecimal averagePriceBought = asset.getAveragePriceBought();
+            BigDecimal averagePriceBought = asset.getAveragePurchasedPrice();
 
             BigDecimal percentagePriceChange = (currentAssetPrice.subtract(averagePriceBought))
                     .divide(averagePriceBought, 16, RoundingMode.HALF_UP);
@@ -128,11 +128,11 @@ public class InvestmentBotServiceImpl implements InvestmentBotService {
                     assetService.sellAsset(account, asset.getAssetSymbol(), assetToSell);
                     log.info("Sell {} of {} at price {} (avg price bought {}), profit percentage {}",
                             asset.getAssetAmount(), asset.getAssetSymbol(), currentAssetPrice,
-                            asset.getAveragePriceBought(), percentagePriceChange);
+                            asset.getAveragePurchasedPrice(), percentagePriceChange);
                 }
             } else {
                 log.info("The percentage change between the avg price {} and actual price {} is not worth it to exchange ({})",
-                        asset.getAveragePriceBought(), currentAssetPrice, percentagePriceChange);
+                        asset.getAveragePurchasedPrice(), currentAssetPrice, percentagePriceChange);
             }
         }
     }
@@ -149,7 +149,7 @@ public class InvestmentBotServiceImpl implements InvestmentBotService {
 
         assetService.buyAsset(account, asset.getAssetSymbol(), amountToBuy);
         log.info("Bot: Buy {} of {} at price {} (average price bought {}), profit percentage: {}",
-                amountToBuy, asset.getAssetSymbol(), currentAssetPrice, asset.getAveragePriceBought(), percentagePriceChange);
+                amountToBuy, asset.getAssetSymbol(), currentAssetPrice, asset.getAveragePurchasedPrice(), percentagePriceChange);
     }
 
     private BigDecimal max(BigDecimal x, BigDecimal y) {
