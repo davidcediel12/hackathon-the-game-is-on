@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -36,6 +37,7 @@ public class AssetServiceImpl implements AssetService {
     @Transactional
     public void buyAsset(AssetTransactionRequest transactionRequest) {
         Account account = accountService.getUserAccount();
+        validatePin(account, transactionRequest.pin());
 
         BigDecimal newBalance = account.getBalance().subtract(transactionRequest.amount());
         if (newBalance.compareTo(transactionRequest.amount()) < 0) {
@@ -48,15 +50,21 @@ public class AssetServiceImpl implements AssetService {
         BigDecimal assetQuantity = transactionRequest.amount()
                 .divide(assetPrice, 16, RoundingMode.HALF_UP);
 
-        saveAsset(transactionRequest, account, assetQuantity);
+        Asset asset = saveAsset(transactionRequest, account, assetQuantity);
 
-        saveAssetTransaction(transactionRequest, assetQuantity, assetPrice);
+        saveAssetTransaction(transactionRequest, assetQuantity, assetPrice, asset);
 
         account.setBalance(newBalance);
         accountRepository.save(account);
     }
 
-    private void saveAsset(AssetTransactionRequest transactionRequest, Account account, BigDecimal assetQuantity) {
+    private void validatePin(Account account, String pin) {
+        if (!Objects.equals(account.getPin(), pin)) {
+            throw ApiException.invalidPin();
+        }
+    }
+
+    private Asset saveAsset(AssetTransactionRequest transactionRequest, Account account, BigDecimal assetQuantity) {
         Optional<Asset> assetOpt = assetRepository.findByAssetSymbolAndAccount(
                 transactionRequest.assetSymbol(), account);
 
@@ -73,14 +81,17 @@ public class AssetServiceImpl implements AssetService {
                     .account(account)
                     .build();
         }
-        assetRepository.save(asset);
+        return assetRepository.save(asset);
     }
 
-    private void saveAssetTransaction(AssetTransactionRequest transactionRequest, BigDecimal assetQuantity, BigDecimal assetPrice) {
+    private void saveAssetTransaction(AssetTransactionRequest transactionRequest,
+                                      BigDecimal assetQuantity, BigDecimal assetPrice,
+                                      Asset asset) {
         AssetTransaction assetTransaction = AssetTransaction.builder()
                 .transactionType(AssetTransactionType.PURCHASE)
                 .amount(assetQuantity)
                 .price(assetPrice)
+                .asset(asset)
                 .transactionValue(transactionRequest.amount())
                 .build();
 

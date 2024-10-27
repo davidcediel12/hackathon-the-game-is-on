@@ -19,4 +19,9 @@ public class ApiException extends RuntimeException{
     public HttpStatus getStatus() {
         return status;
     }
+
+    public static ApiException invalidPin() {
+        return new ApiException("Invalid PIN", HttpStatus.FORBIDDEN);
+    }
+
 }

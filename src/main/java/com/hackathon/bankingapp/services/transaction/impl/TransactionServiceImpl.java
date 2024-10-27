@@ -108,7 +108,7 @@ public class TransactionServiceImpl implements TransactionService {
         Account account = accountService.getUserAccount();
 
         if (!Objects.equals(pin, account.getPin())) {
-            throw new ApiException("Invalid PIN", HttpStatus.FORBIDDEN);
+            throw ApiException.invalidPin();
         }
         return account;
     }

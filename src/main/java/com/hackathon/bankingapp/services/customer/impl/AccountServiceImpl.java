@@ -72,7 +72,7 @@ public class AccountServiceImpl implements AccountService {
         Account account = user.getAccount();
 
         if(!Objects.equals(account.getPin(), assignPinRequest.oldPin())){
-            throw new ApiException("Invalid PIN", HttpStatus.BAD_REQUEST);
+            throw ApiException.invalidPin();
         }
 
         account.setPin(assignPinRequest.newPin());
