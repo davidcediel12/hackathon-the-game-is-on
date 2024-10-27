@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 public record UserRegisterRequest(@NotBlank String name,
-                                  @NotBlank @Password String password,
+                                  @Password String password,
                                   @NotBlank @Email String email,
                                   @NotBlank String address,
                                   @NotBlank @Pattern(regexp = "\\d+") String phoneNumber) {

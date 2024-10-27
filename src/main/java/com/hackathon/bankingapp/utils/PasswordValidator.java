@@ -11,7 +11,7 @@ public class PasswordValidator implements ConstraintValidator<Password, String> 
         String message;
         context.disableDefaultConstraintViolation();
 
-        boolean notContainsUppercase = !password.matches("^.*[A-Z]+.*$");
+        boolean notContainsUppercase = password == null || !password.matches("^.*[A-Z]+.*$");
         if (notContainsUppercase) {
             message = "Password must contain at least one uppercase letter";
             context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
