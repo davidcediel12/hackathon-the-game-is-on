@@ -2,6 +2,7 @@ package com.hackathon.bankingapp.controller;
 
 
 import com.hackathon.bankingapp.dto.request.AssignPinRequest;
+import com.hackathon.bankingapp.dto.request.UpdatePinRequest;
 import com.hackathon.bankingapp.dto.response.ReducedGenericResponse;
 import com.hackathon.bankingapp.services.AccountService;
 import jakarta.validation.Valid;
@@ -26,5 +27,11 @@ public class PinController {
         accountService.assignPin(pinRequest);
 
         return ResponseEntity.ok(new ReducedGenericResponse("PIN created successfully"));
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<ReducedGenericResponse> updatePin(@Valid @RequestBody UpdatePinRequest pinRequest) {
+        accountService.updatePin(pinRequest);
+        return ResponseEntity.ok(new ReducedGenericResponse("PIN updated successfully"));
     }
 }

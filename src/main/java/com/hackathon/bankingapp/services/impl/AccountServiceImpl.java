@@ -1,6 +1,7 @@
 package com.hackathon.bankingapp.services.impl;
 
 import com.hackathon.bankingapp.dto.request.AssignPinRequest;
+import com.hackathon.bankingapp.dto.request.UpdatePinRequest;
 import com.hackathon.bankingapp.dto.response.AccountDetailResponse;
 import com.hackathon.bankingapp.entities.Account;
 import com.hackathon.bankingapp.entities.User;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -48,6 +50,7 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
+    @Transactional
     public void assignPin(AssignPinRequest assignPinRequest) {
 
         User user = validateUserPasswordAndGetUser(assignPinRequest.password());
@@ -58,6 +61,20 @@ public class AccountServiceImpl implements AccountService {
         }
 
         account.setPin(assignPinRequest.pin());
+        accountRepository.save(account);
+    }
+
+    @Override
+    @Transactional
+    public void updatePin(UpdatePinRequest assignPinRequest) {
+        User user = validateUserPasswordAndGetUser(assignPinRequest.password());
+        Account account = user.getAccount();
+
+        if(!Objects.equals(account.getPin(), assignPinRequest.oldPin())){
+            throw new ApiException("Invalid PIN", HttpStatus.BAD_REQUEST);
+        }
+
+        account.setPin(assignPinRequest.newPin());
         accountRepository.save(account);
     }
 
