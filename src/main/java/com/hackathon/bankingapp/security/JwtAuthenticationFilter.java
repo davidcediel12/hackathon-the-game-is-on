@@ -1,7 +1,7 @@
 package com.hackathon.bankingapp.security;
 
 import com.hackathon.bankingapp.exceptions.ApiException;
-import com.hackathon.bankingapp.services.TokenService;
+import com.hackathon.bankingapp.services.authentication.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
