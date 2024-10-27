@@ -62,10 +62,10 @@ public class InvestmentBotServiceImpl implements InvestmentBotService {
             }
         };
 
-        schedulePayment(accountId, task, 30);
+        scheduleInvestment(accountId, task, 30);
     }
 
-    public void schedulePayment(Long accountId, Runnable task, long delay) {
+    public void scheduleInvestment(Long accountId, Runnable task, long delay) {
 
 
         ScheduledFuture<?> botAnalyzer = scheduledTasks.get(accountId);
@@ -123,7 +123,7 @@ public class InvestmentBotServiceImpl implements InvestmentBotService {
 
                     BigDecimal assetQuantity = asset.getAssetAmount();
                     BigDecimal assetToSell = assetQuantity.multiply(
-                            max(percentagePriceChange, BigDecimal.valueOf(0.3)));
+                            min(percentagePriceChange, BigDecimal.valueOf(0.3)));
 
                     assetService.sellAsset(account, asset.getAssetSymbol(), assetToSell);
                     log.info("Sell {} of {} at price {} (avg price bought {}), profit percentage {}",
@@ -143,7 +143,7 @@ public class InvestmentBotServiceImpl implements InvestmentBotService {
         BigDecimal availableAmountPerAsset = account.getBalance().divide(
                 BigDecimal.valueOf(assets.size()), 12, RoundingMode.HALF_UP);
 
-        BigDecimal amountPercentageToSpend = max(BigDecimal.valueOf(0.3), percentagePriceChange.abs());
+        BigDecimal amountPercentageToSpend = min(BigDecimal.valueOf(0.3), percentagePriceChange.abs());
 
         BigDecimal amountToBuy = availableAmountPerAsset.multiply(amountPercentageToSpend);
 
@@ -152,8 +152,8 @@ public class InvestmentBotServiceImpl implements InvestmentBotService {
                 amountToBuy, asset.getAssetSymbol(), currentAssetPrice, asset.getAveragePurchasedPrice(), percentagePriceChange);
     }
 
-    private BigDecimal max(BigDecimal x, BigDecimal y) {
-        if (x.compareTo(y) > 0) {
+    private BigDecimal min(BigDecimal x, BigDecimal y) {
+        if (x.compareTo(y) < 0) {
             return x;
         }
         return y;

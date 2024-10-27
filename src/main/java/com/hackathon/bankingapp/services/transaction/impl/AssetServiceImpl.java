@@ -15,6 +15,7 @@ import com.hackathon.bankingapp.services.transaction.AssetMailingService;
 import com.hackathon.bankingapp.services.transaction.AssetService;
 import com.hackathon.bankingapp.services.transaction.MarketPricesService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AssetServiceImpl implements AssetService {
 
     private final MarketPricesService marketPricesService;
@@ -166,6 +168,8 @@ public class AssetServiceImpl implements AssetService {
         BigDecimal newAssetQuantity = asset.getAssetAmount().subtract(quantity);
         boolean insufficientQuantity = newAssetQuantity.compareTo(BigDecimal.ZERO) < 0;
         if (insufficientQuantity) {
+            log.error("Insufficient quantity to sell actual: {}, intended to sell: {}",
+                    asset.getAssetAmount(), quantity);
             throw errorSellingAsset;
         }
 
