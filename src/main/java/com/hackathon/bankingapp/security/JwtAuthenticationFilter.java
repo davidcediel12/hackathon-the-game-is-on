@@ -45,7 +45,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String uri = request.getRequestURI().replaceFirst("/", "");
         boolean isUnprotectedPath = UNPROTECTED_PATHS.contains(uri);
-        if(isUnprotectedPath){
+
+        if (isUnprotectedPath) {
             doFilter(request, response, filterChain);
             return;
         }
