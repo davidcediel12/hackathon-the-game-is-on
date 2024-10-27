@@ -62,7 +62,7 @@ public class InvestmentBotServiceImpl implements InvestmentBotService {
             }
         };
 
-        schedulePayment(accountId, task, 10);
+        schedulePayment(accountId, task, 30);
     }
 
     public void schedulePayment(Long accountId, Runnable task, long delay) {
