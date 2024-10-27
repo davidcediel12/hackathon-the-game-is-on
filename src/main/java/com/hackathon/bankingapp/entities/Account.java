@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -30,4 +31,7 @@ public class Account {
 
     @Column(length = 4)
     private String pin;
+
+    @OneToMany(mappedBy = "sourceAccount")
+    private List<Transaction> transactions;
 }

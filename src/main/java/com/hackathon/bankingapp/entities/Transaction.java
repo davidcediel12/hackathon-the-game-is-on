@@ -1,5 +1,6 @@
 package com.hackathon.bankingapp.entities;
 
+import com.hackathon.bankingapp.dto.response.transaction.TransactionDetail;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -35,4 +36,16 @@ public class Transaction {
 
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
+
+    public TransactionDetail toDetail() {
+        String targetAccountNumber;
+
+        if (targetAccount != null) {
+            targetAccountNumber = targetAccount.getAccountId();
+        } else {
+            targetAccountNumber = "N/A";
+        }
+        return new TransactionDetail(id, amount, transactionType.toString(), transactionDate.toEpochMilli(),
+                sourceAccount.getAccountId(), targetAccountNumber);
+    }
 }

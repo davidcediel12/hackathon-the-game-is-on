@@ -4,14 +4,14 @@ package com.hackathon.bankingapp.controller.account;
 import com.hackathon.bankingapp.dto.request.account.TransactionRequest;
 import com.hackathon.bankingapp.dto.request.account.TransferRequest;
 import com.hackathon.bankingapp.dto.response.ReducedGenericResponse;
+import com.hackathon.bankingapp.dto.response.transaction.TransactionDetail;
 import com.hackathon.bankingapp.services.transaction.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/account")
@@ -47,5 +47,10 @@ public class AccountController {
 
     private ReducedGenericResponse getGenericResponse(String message) {
         return new ReducedGenericResponse(message);
+    }
+
+    @GetMapping("/transactions")
+    public ResponseEntity<List<TransactionDetail>> getTransactions(){
+        return ResponseEntity.ok(transactionService.getTransactions());
     }
 }

@@ -2,6 +2,7 @@ package com.hackathon.bankingapp.services.transaction.impl;
 
 import com.hackathon.bankingapp.dto.request.account.TransactionRequest;
 import com.hackathon.bankingapp.dto.request.account.TransferRequest;
+import com.hackathon.bankingapp.dto.response.transaction.TransactionDetail;
 import com.hackathon.bankingapp.entities.Account;
 import com.hackathon.bankingapp.entities.Transaction;
 import com.hackathon.bankingapp.entities.TransactionType;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -59,6 +61,17 @@ public class TransactionServiceImpl implements TransactionService {
         addMoney(destinationAccount, transferRequest.amount());
 
         saveTransaction(transferRequest.amount(), account, destinationAccount, TransactionType.CASH_TRANSFER);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TransactionDetail> getTransactions() {
+
+        Account account = accountService.getUserAccount();
+
+        return transactionRepository.findBySourceAccount(account).stream()
+                .map(Transaction::toDetail)
+                .toList();
     }
 
     private void saveTransaction(BigDecimal amount, Account account, Account destinationAccount,
