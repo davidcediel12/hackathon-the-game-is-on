@@ -45,7 +45,8 @@ public class AssetServiceImpl implements AssetService {
         validatePin(account, transactionRequest.pin());
 
         BigDecimal newBalance = account.getBalance().subtract(transactionRequest.amount());
-        if (newBalance.compareTo(transactionRequest.amount()) < 0) {
+        boolean insufficientBalance = newBalance.compareTo(BigDecimal.ZERO) < 0;
+        if (insufficientBalance) {
             throw new ApiException("Internal error occurred while purchasing the asset.",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
