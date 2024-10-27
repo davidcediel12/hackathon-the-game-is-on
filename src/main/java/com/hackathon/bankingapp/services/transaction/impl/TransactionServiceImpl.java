@@ -1,6 +1,7 @@
 package com.hackathon.bankingapp.services.transaction.impl;
 
 import com.hackathon.bankingapp.dto.request.account.TransactionRequest;
+import com.hackathon.bankingapp.dto.request.account.TransferRequest;
 import com.hackathon.bankingapp.entities.Account;
 import com.hackathon.bankingapp.exceptions.ApiException;
 import com.hackathon.bankingapp.repositories.AccountRepository;
@@ -24,36 +25,55 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public void depositMoney(TransactionRequest transactionRequest) {
-        Account account = accountService.getUserAccount();
-
-        validatePin(transactionRequest, account);
-
-        account.setBalance(account.getBalance().add(transactionRequest.amount()));
-        accountRepository.save(account);
+        Account account = getAccountAndValidatePin(transactionRequest.pin());
+        addMoney(account, transactionRequest.amount());
     }
+
 
     @Override
     @Transactional
     public void withdrawMoney(TransactionRequest transactionRequest) {
-        Account account = accountService.getUserAccount();
+        Account account = getAccountAndValidatePin(transactionRequest.pin());
 
-        validatePin(transactionRequest, account);
+        subtractMoney(transactionRequest.amount(), account);
+    }
 
-        BigDecimal newBalance = account.getBalance().subtract(transactionRequest.amount());
+
+    @Override
+    @Transactional
+    public void transferMoney(TransferRequest transferRequest) {
+
+        Account account = getAccountAndValidatePin(transferRequest.pin());
+
+        Account destinationAccount = accountRepository.findByAccountId(transferRequest.targetAccountNumber())
+                .orElseThrow(() -> new ApiException("Destination account not found", HttpStatus.BAD_REQUEST));
+
+        subtractMoney(transferRequest.amount(), account);
+        addMoney(destinationAccount, transferRequest.amount());
+    }
+
+    private void addMoney(Account account, BigDecimal amount) {
+        account.setBalance(account.getBalance().add(amount));
+        accountRepository.save(account);
+    }
+
+    private void subtractMoney(BigDecimal value, Account account) {
+        BigDecimal newBalance = account.getBalance().subtract(value);
         boolean isNegativeBalance = newBalance.compareTo(BigDecimal.ZERO) < 0;
 
-        if(isNegativeBalance) {
+        if (isNegativeBalance) {
             throw new ApiException("Insufficient balance", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         account.setBalance(newBalance);
         accountRepository.save(account);
     }
 
-    private static void validatePin(TransactionRequest transactionRequest, Account account) {
-        if(!Objects.equals(transactionRequest.pin(), account.getPin())) {
-            throw new ApiException("Invalid PIN", HttpStatus.FORBIDDEN  );
+    private Account getAccountAndValidatePin(String pin) {
+        Account account = accountService.getUserAccount();
+
+        if (!Objects.equals(pin, account.getPin())) {
+            throw new ApiException("Invalid PIN", HttpStatus.FORBIDDEN);
         }
+        return account;
     }
-
-
 }
