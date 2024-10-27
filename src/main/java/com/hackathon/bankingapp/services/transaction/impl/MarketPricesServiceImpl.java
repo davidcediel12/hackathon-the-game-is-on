@@ -21,8 +21,6 @@ public class MarketPricesServiceImpl implements MarketPricesService {
 
     private final RestTemplate restTemplate;
 
-    @Value("${api.market.prices}")
-    String apiMarketPrices;
 
     @Override
     public Map<String, BigDecimal> getAssetsPrice() {
@@ -30,7 +28,7 @@ public class MarketPricesServiceImpl implements MarketPricesService {
         ParameterizedTypeReference<Map<String, BigDecimal>> responseType =
                 new ParameterizedTypeReference<>() {};
 
-        RequestEntity<Void> request = RequestEntity.get(apiMarketPrices)
+        RequestEntity<Void> request = RequestEntity.get("https://faas-lon1-917a94a7.doserverless.co/api/v1/web/fn-e0f31110-7521-4cb9-86a2-645f66eefb63/default/market-prices-simulator")
                 .accept(MediaType.APPLICATION_JSON).build();
 
         return restTemplate.exchange(request, responseType)
