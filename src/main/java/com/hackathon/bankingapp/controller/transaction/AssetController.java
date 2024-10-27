@@ -7,10 +7,10 @@ import com.hackathon.bankingapp.services.transaction.AssetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/account")
@@ -33,5 +33,16 @@ public class AssetController {
 
         assetService.sellAsset(assetSaleRequest);
         return ResponseEntity.ok("Asset sale successful.");
+    }
+
+    @GetMapping("/assets")
+    public ResponseEntity<Map<String, BigDecimal>> getAssets() {
+
+        return ResponseEntity.ok(assetService.getAssets());
+    }
+
+    @GetMapping("/net-worth")
+    public ResponseEntity<BigDecimal> getNetWorth() {
+        return ResponseEntity.ok(assetService.getNetWorth());
     }
 }

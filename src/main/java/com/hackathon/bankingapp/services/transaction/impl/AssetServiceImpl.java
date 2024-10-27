@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -63,6 +65,7 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
+    @Transactional
     public void sellAsset(AssetSaleRequest saleRequest) {
         Account account = accountService.getUserAccount();
         validatePin(account, saleRequest.pin());
@@ -82,8 +85,33 @@ public class AssetServiceImpl implements AssetService {
 
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, BigDecimal> getAssets() {
+
+        Account account = accountService.getUserAccount();
+        Map<String, BigDecimal> assets = new HashMap<>();
+
+        assetRepository.findByAccount(account)
+                .forEach(asset -> assets.put(asset.getAssetSymbol(), asset.getAssetAmount()));
+
+        return assets;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BigDecimal getNetWorth() {
+        Account account = accountService.getUserAccount();
+
+        BigDecimal assetsWorth = assetRepository.findByAccount(account).stream()
+                .map(asset -> asset.getAssetAmount().multiply(asset.getAveragePriceBought()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return assetsWorth.add(account.getBalance()).setScale(12, RoundingMode.HALF_UP);
+    }
+
     private AssetTransaction createSellAssetTransaction(AssetSaleRequest saleRequest, Asset asset,
-                                            BigDecimal transactionValue, BigDecimal assetPrice) {
+                                                        BigDecimal transactionValue, BigDecimal assetPrice) {
 
         AssetTransaction assetTransaction = AssetTransaction.builder()
                 .asset(asset)
@@ -101,7 +129,7 @@ public class AssetServiceImpl implements AssetService {
                 .orElseThrow(() -> errorSellingAsset);
 
         BigDecimal newAssetQuantity = asset.getAssetAmount().subtract(saleRequest.quantity());
-        if(newAssetQuantity.compareTo(BigDecimal.ZERO) < 0) {
+        if (newAssetQuantity.compareTo(BigDecimal.ZERO) < 0) {
             throw errorSellingAsset;
         }
 
