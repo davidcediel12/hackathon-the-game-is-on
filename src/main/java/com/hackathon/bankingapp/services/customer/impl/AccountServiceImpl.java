@@ -43,6 +43,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
     public AccountDetailResponse getLoggedInUserAccount() {
         Account account = getUserAccount();
         return new AccountDetailResponse(account.getAccountId(), account.getBalance());

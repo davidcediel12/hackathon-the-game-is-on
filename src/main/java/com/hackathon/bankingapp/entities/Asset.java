@@ -4,34 +4,28 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "account")
+@Table(name = "asset")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Account {
-
-
+public class Asset {
     @Id
     @GeneratedValue
     private Long id;
 
     @Column(nullable = false)
-    private String accountId;
+    private String assetSymbol;
 
     @Column(nullable = false, precision = 38, scale = 16)
-    private BigDecimal balance;
+    private BigDecimal amount;
 
-    @OneToOne(optional = false)
-    private User user;
+    @Column(nullable = false, precision = 38, scale = 16)
+    private BigDecimal price;
 
-    @Column(length = 4)
-    private String pin;
-
-    @OneToMany(mappedBy = "sourceAccount")
-    private List<Transaction> transactions;
+    @ManyToOne(optional = false)
+    private Account account;
 }

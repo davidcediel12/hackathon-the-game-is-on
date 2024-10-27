@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,7 @@ import static com.hackathon.bankingapp.utils.Constants.UNPROTECTED_PATHS;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
@@ -82,8 +84,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 throw deniedAccessException;
             }
             filterChain.doFilter(request, response);
-        } catch (Exception e) {
+        } catch (ApiException e) {
             handlerExceptionResolver.resolveException(request, response, null, e);
+        } catch (Exception e) {
+            log.error("Error ", e);
+            throw e;
         }
     }
 }
