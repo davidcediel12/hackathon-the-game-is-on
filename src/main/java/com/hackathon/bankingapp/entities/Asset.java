@@ -17,14 +17,11 @@ public class Asset {
     @GeneratedValue
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String assetSymbol;
 
     @Column(nullable = false, precision = 38, scale = 16)
-    private BigDecimal amount;
-
-    @Column(nullable = false, precision = 38, scale = 16)
-    private BigDecimal price;
+    private BigDecimal assetAmount;
 
     @ManyToOne(optional = false)
     private Account account;
