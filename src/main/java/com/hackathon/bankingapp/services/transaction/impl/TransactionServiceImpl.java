@@ -3,8 +3,11 @@ package com.hackathon.bankingapp.services.transaction.impl;
 import com.hackathon.bankingapp.dto.request.account.TransactionRequest;
 import com.hackathon.bankingapp.dto.request.account.TransferRequest;
 import com.hackathon.bankingapp.entities.Account;
+import com.hackathon.bankingapp.entities.Transaction;
+import com.hackathon.bankingapp.entities.TransactionType;
 import com.hackathon.bankingapp.exceptions.ApiException;
 import com.hackathon.bankingapp.repositories.AccountRepository;
+import com.hackathon.bankingapp.repositories.TransactionRepository;
 import com.hackathon.bankingapp.services.customer.AccountService;
 import com.hackathon.bankingapp.services.transaction.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Objects;
 
 @Service
@@ -21,12 +25,14 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final AccountService accountService;
     private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
 
     @Override
     @Transactional
     public void depositMoney(TransactionRequest transactionRequest) {
         Account account = getAccountAndValidatePin(transactionRequest.pin());
         addMoney(account, transactionRequest.amount());
+        saveTransaction(transactionRequest.amount(), account, null, TransactionType.CASH_DEPOSIT);
     }
 
 
@@ -36,6 +42,7 @@ public class TransactionServiceImpl implements TransactionService {
         Account account = getAccountAndValidatePin(transactionRequest.pin());
 
         subtractMoney(transactionRequest.amount(), account);
+        saveTransaction(transactionRequest.amount(), account, null, TransactionType.CASH_WITHDRAWAL);
     }
 
 
@@ -50,6 +57,22 @@ public class TransactionServiceImpl implements TransactionService {
 
         subtractMoney(transferRequest.amount(), account);
         addMoney(destinationAccount, transferRequest.amount());
+
+        saveTransaction(transferRequest.amount(), account, destinationAccount, TransactionType.CASH_TRANSFER);
+    }
+
+    private void saveTransaction(BigDecimal amount, Account account, Account destinationAccount,
+                                 TransactionType transactionType) {
+
+        Transaction transaction = Transaction.builder()
+                .sourceAccount(account)
+                .targetAccount(destinationAccount)
+                .amount(amount)
+                .transactionType(transactionType)
+                .transactionDate(Instant.now())
+                .build();
+
+        transactionRepository.save(transaction);
     }
 
     private void addMoney(Account account, BigDecimal amount) {
