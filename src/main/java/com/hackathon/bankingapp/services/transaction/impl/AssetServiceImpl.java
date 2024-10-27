@@ -37,6 +37,9 @@ public class AssetServiceImpl implements AssetService {
     private final AssetTransactionRepository assetTransactionRepository;
     private final AssetMailingService assetMailingService;
 
+    private record AssetInvestmentResult(Asset asset, AssetTransaction assetTransaction) {
+    }
+
 
     @Override
     @Transactional
@@ -44,25 +47,17 @@ public class AssetServiceImpl implements AssetService {
         Account account = accountService.getUserAccount();
         validatePin(account, transactionRequest.pin());
 
-        BigDecimal newBalance = account.getBalance().subtract(transactionRequest.amount());
-        boolean insufficientBalance = newBalance.compareTo(BigDecimal.ZERO) < 0;
-        if (insufficientBalance) {
-            throw new ApiException("Internal error occurred while purchasing the asset.",
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        AssetInvestmentResult assetPurchaseResult = buyAsset(transactionRequest.amount(),
+                transactionRequest.assetSymbol(), account);
 
-        BigDecimal assetPrice = marketPricesService.getAssetPrice(transactionRequest.assetSymbol());
+        assetMailingService.sendAssetPurchaseMessage(assetPurchaseResult.asset(),
+                account, assetPurchaseResult.assetTransaction());
+    }
 
-        BigDecimal assetQuantity = transactionRequest.amount()
-                .divide(assetPrice, 16, RoundingMode.HALF_UP);
-
-        Asset asset = saveAsset(transactionRequest, account, assetQuantity, assetPrice);
-
-        AssetTransaction assetTransaction = saveAssetTransaction(transactionRequest, assetQuantity, assetPrice, asset);
-
-        account.setBalance(newBalance);
-        accountRepository.save(account);
-        assetMailingService.sendAssetPurchaseMessage(asset, account, assetTransaction);
+    @Override
+    public void buyAsset(String assetSymbol, BigDecimal amount) {
+        Account account = accountService.getUserAccount();
+        buyAsset(amount, assetSymbol, account);
     }
 
     @Override
@@ -71,20 +66,35 @@ public class AssetServiceImpl implements AssetService {
         Account account = accountService.getUserAccount();
         validatePin(account, saleRequest.pin());
 
+        AssetInvestmentResult result = sellAsset(saleRequest.quantity(), saleRequest.assetSymbol(), account);
+        assetMailingService.sendAssetSellMessage(result.asset(), account, result.assetTransaction());
+
+    }
+
+    @Override
+    @Transactional
+    public void sellAsset(String assetSymbol, BigDecimal quantity) {
+        Account account = accountService.getUserAccount();
+        sellAsset(quantity, assetSymbol, account);
+    }
+
+    private AssetInvestmentResult sellAsset(BigDecimal quantity, String assetSymbol, Account account) {
         ApiException errorSellingAsset = new ApiException("Internal error occurred while selling the asset.", HttpStatus.INTERNAL_SERVER_ERROR);
 
-        Asset asset = updateAssetQuantity(saleRequest, account, errorSellingAsset);
+        Asset asset = updateAssetQuantity(quantity, assetSymbol, account, errorSellingAsset);
 
-        BigDecimal assetPrice = marketPricesService.getAssetPrice(saleRequest.assetSymbol());
-        BigDecimal transactionValue = assetPrice.multiply(saleRequest.quantity());
+        BigDecimal assetPrice = marketPricesService.getAssetPrice(assetSymbol);
+        BigDecimal transactionValue = assetPrice.multiply(quantity);
 
         account.setBalance(account.getBalance().add(transactionValue));
         accountRepository.save(account);
 
-        AssetTransaction assetTransaction = createSellAssetTransaction(saleRequest, asset, transactionValue, assetPrice);
-        assetMailingService.sendAssetSellMessage(asset, account, assetTransaction);
+        AssetTransaction assetTransaction = createSellAssetTransaction(
+                quantity, asset, transactionValue, assetPrice);
 
+        return new AssetInvestmentResult(asset, assetTransaction);
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -112,25 +122,50 @@ public class AssetServiceImpl implements AssetService {
                 .stripTrailingZeros();
     }
 
-    private AssetTransaction createSellAssetTransaction(AssetSaleRequest saleRequest, Asset asset,
+    private AssetInvestmentResult buyAsset(BigDecimal amount, String assetSymbol, Account account) {
+        BigDecimal newBalance = account.getBalance().subtract(amount);
+        boolean insufficientBalance = newBalance.compareTo(BigDecimal.ZERO) < 0;
+        if (insufficientBalance) {
+            throw new ApiException("Internal error occurred while purchasing the asset.",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        BigDecimal assetPrice = marketPricesService.getAssetPrice(assetSymbol);
+
+        BigDecimal assetQuantity = amount
+                .divide(assetPrice, 16, RoundingMode.HALF_UP);
+
+        Asset asset = saveAsset(assetSymbol, account, assetQuantity, assetPrice);
+
+        AssetTransaction assetTransaction = saveAssetTransaction(amount, assetQuantity, assetPrice, asset);
+
+        account.setBalance(newBalance);
+        accountRepository.save(account);
+        return new AssetInvestmentResult(asset, assetTransaction);
+    }
+
+
+    private AssetTransaction createSellAssetTransaction(BigDecimal quantity, Asset asset,
                                                         BigDecimal transactionValue, BigDecimal assetPrice) {
 
         AssetTransaction assetTransaction = AssetTransaction.builder()
                 .asset(asset)
                 .transactionValue(transactionValue)
                 .price(assetPrice)
-                .amount(saleRequest.quantity())
+                .amount(quantity)
                 .transactionType(AssetTransactionType.SELL)
                 .build();
 
         return assetTransactionRepository.save(assetTransaction);
     }
 
-    private Asset updateAssetQuantity(AssetSaleRequest saleRequest, Account account, ApiException errorSellingAsset) {
-        Asset asset = assetRepository.findByAssetSymbolAndAccount(saleRequest.assetSymbol(), account)
+    private Asset updateAssetQuantity(BigDecimal quantity, String assetSymbol,
+                                      Account account, ApiException errorSellingAsset) {
+
+        Asset asset = assetRepository.findByAssetSymbolAndAccount(assetSymbol, account)
                 .orElseThrow(() -> errorSellingAsset);
 
-        BigDecimal newAssetQuantity = asset.getAssetAmount().subtract(saleRequest.quantity());
+        BigDecimal newAssetQuantity = asset.getAssetAmount().subtract(quantity);
         boolean insufficientQuantity = newAssetQuantity.compareTo(BigDecimal.ZERO) < 0;
         if (insufficientQuantity) {
             throw errorSellingAsset;
@@ -147,11 +182,11 @@ public class AssetServiceImpl implements AssetService {
         }
     }
 
-    private Asset saveAsset(AssetPurchaseRequest transactionRequest, Account account,
+    private Asset saveAsset(String assetSymbol, Account account,
                             BigDecimal assetQuantity, BigDecimal assetPrice) {
 
         Optional<Asset> assetOpt = assetRepository.findByAssetSymbolAndAccount(
-                transactionRequest.assetSymbol(), account);
+                assetSymbol, account);
 
         Asset asset;
         if (assetOpt.isPresent()) {
@@ -171,7 +206,7 @@ public class AssetServiceImpl implements AssetService {
 
         } else {
             asset = Asset.builder()
-                    .assetSymbol(transactionRequest.assetSymbol())
+                    .assetSymbol(assetSymbol)
                     .assetAmount(assetQuantity)
                     .totalAssetBought(assetQuantity)
                     .averagePriceBought(assetPrice)
@@ -181,7 +216,7 @@ public class AssetServiceImpl implements AssetService {
         return assetRepository.save(asset);
     }
 
-    private AssetTransaction saveAssetTransaction(AssetPurchaseRequest transactionRequest,
+    private AssetTransaction saveAssetTransaction(BigDecimal amount,
                                                   BigDecimal assetQuantity, BigDecimal assetPrice,
                                                   Asset asset) {
         AssetTransaction assetTransaction = AssetTransaction.builder()
@@ -189,7 +224,7 @@ public class AssetServiceImpl implements AssetService {
                 .amount(assetQuantity)
                 .price(assetPrice)
                 .asset(asset)
-                .transactionValue(transactionRequest.amount())
+                .transactionValue(amount)
                 .build();
 
         return assetTransactionRepository.save(assetTransaction);

@@ -9,7 +9,9 @@ import java.util.Map;
 public interface AssetService {
 
     void buyAsset(AssetPurchaseRequest transactionRequest);
+    void buyAsset(String assetSymbol, BigDecimal amount);
     void sellAsset(AssetSaleRequest transactionRequest);
+    void sellAsset(String assetSymbol, BigDecimal quantity);
 
     Map<String, BigDecimal> getAssets();
 
