@@ -35,6 +35,41 @@ public class AssetMailingServiceImpl implements AssetMailingService {
                 assetTransaction.getTransactionValue(),
                 asset.getAssetSymbol(), asset.getAssetAmount());
 
+        AssetsAndTotalWorth assetsAndTotalWorth = getAssetsAndTotalWorth(account);
+
+        String finalMailPart = String.format(Locale.US,
+                MAIL_PURCHASE_ASSET_END, account.getBalance(), assetsAndTotalWorth.totalWorth());
+
+        String completeMailBody = initialMailPart + assetsAndTotalWorth.allAssetsString() + finalMailPart;
+
+        emailService.sendSimpleMessage(account.getUser().getEmail(),
+                "Investment Purchase Confirmation", completeMailBody);
+
+    }
+
+
+    @Override
+    public void sendAssetSellMessage(Asset asset, Account account, AssetTransaction assetTransaction) {
+        BigDecimal operationProfits = assetTransaction.getTransactionValue().subtract(
+                asset.getAveragePriceBought().multiply(assetTransaction.getAmount()));
+
+
+        String initialMailPart = String.format(Locale.US, MAIL_SALE_ASSET_INITIAL,
+                assetTransaction.getAmount(), asset.getAssetSymbol(), operationProfits,
+                asset.getAssetSymbol(), asset.getAssetAmount());
+
+        AssetsAndTotalWorth assetsAndTotalWorth = getAssetsAndTotalWorth(account);
+
+        String finalMailPart = String.format(Locale.US,
+                MAIL_PURCHASE_ASSET_END, account.getBalance(), assetsAndTotalWorth.totalWorth());
+
+        String completeMailBody = initialMailPart + assetsAndTotalWorth.allAssetsString() + finalMailPart;
+
+        emailService.sendSimpleMessage(account.getUser().getEmail(),
+                "Investment Sale Confirmation", completeMailBody);
+    }
+
+    private AssetsAndTotalWorth getAssetsAndTotalWorth(Account account) {
         StringBuilder allAssetsString = new StringBuilder();
         BigDecimal totalWorth = account.getBalance();
 
@@ -46,15 +81,10 @@ public class AssetMailingServiceImpl implements AssetMailingService {
             String assetLine = assetSummary.description();
             allAssetsString.append(assetLine).append("\n");
         }
+        return new AssetsAndTotalWorth(allAssetsString, totalWorth);
+    }
 
-        String finalMailPart = String.format(Locale.US,
-                MAIL_PURCHASE_ASSET_END, account.getBalance(), totalWorth);
-
-        String completeMailBody = initialMailPart + allAssetsString + finalMailPart;
-
-        emailService.sendSimpleMessage(account.getUser().getEmail(),
-                "Investment Sale Confirmation", completeMailBody);
-
+    private record AssetsAndTotalWorth(StringBuilder allAssetsString, BigDecimal totalWorth) {
     }
 
     private AssetSummary obtainAssetAverages(Asset asset) {
@@ -67,6 +97,6 @@ public class AssetMailingServiceImpl implements AssetMailingService {
         return new AssetSummary(assetDescription, finalPrice);
     }
 
-    record AssetSummary(String description, BigDecimal assetWorth) {
+    private record AssetSummary(String description, BigDecimal assetWorth) {
     }
 }

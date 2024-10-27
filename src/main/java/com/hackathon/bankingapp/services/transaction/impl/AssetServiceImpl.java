@@ -1,6 +1,7 @@
 package com.hackathon.bankingapp.services.transaction.impl;
 
-import com.hackathon.bankingapp.dto.request.transaction.AssetTransactionRequest;
+import com.hackathon.bankingapp.dto.request.transaction.AssetPurchaseRequest;
+import com.hackathon.bankingapp.dto.request.transaction.AssetSaleRequest;
 import com.hackathon.bankingapp.entities.Account;
 import com.hackathon.bankingapp.entities.Asset;
 import com.hackathon.bankingapp.entities.AssetTransaction;
@@ -37,7 +38,7 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     @Transactional
-    public void buyAsset(AssetTransactionRequest transactionRequest) {
+    public void buyAsset(AssetPurchaseRequest transactionRequest) {
         Account account = accountService.getUserAccount();
         validatePin(account, transactionRequest.pin());
 
@@ -61,13 +62,61 @@ public class AssetServiceImpl implements AssetService {
         assetMailingService.sendAssetPurchaseMessage(asset, account, assetTransaction);
     }
 
+    @Override
+    public void sellAsset(AssetSaleRequest saleRequest) {
+        Account account = accountService.getUserAccount();
+        validatePin(account, saleRequest.pin());
+
+        ApiException errorSellingAsset = new ApiException("Internal error occurred while selling the asset.", HttpStatus.INTERNAL_SERVER_ERROR);
+
+        Asset asset = updateAssetQuantity(saleRequest, account, errorSellingAsset);
+
+        BigDecimal assetPrice = marketPricesService.getAssetPrice(saleRequest.assetSymbol());
+        BigDecimal transactionValue = assetPrice.multiply(saleRequest.quantity());
+
+        account.setBalance(account.getBalance().add(transactionValue));
+        accountRepository.save(account);
+
+        AssetTransaction assetTransaction = createSellAssetTransaction(saleRequest, asset, transactionValue, assetPrice);
+        assetMailingService.sendAssetSellMessage(asset, account, assetTransaction);
+
+    }
+
+    private AssetTransaction createSellAssetTransaction(AssetSaleRequest saleRequest, Asset asset,
+                                            BigDecimal transactionValue, BigDecimal assetPrice) {
+
+        AssetTransaction assetTransaction = AssetTransaction.builder()
+                .asset(asset)
+                .transactionValue(transactionValue)
+                .price(assetPrice)
+                .amount(saleRequest.quantity())
+                .transactionType(AssetTransactionType.SELL)
+                .build();
+
+        return assetTransactionRepository.save(assetTransaction);
+    }
+
+    private Asset updateAssetQuantity(AssetSaleRequest saleRequest, Account account, ApiException errorSellingAsset) {
+        Asset asset = assetRepository.findByAssetSymbolAndAccount(saleRequest.assetSymbol(), account)
+                .orElseThrow(() -> errorSellingAsset);
+
+        BigDecimal newAssetQuantity = asset.getAssetAmount().subtract(saleRequest.quantity());
+        if(newAssetQuantity.compareTo(BigDecimal.ZERO) < 0) {
+            throw errorSellingAsset;
+        }
+
+        asset.setAssetAmount(newAssetQuantity);
+        assetRepository.save(asset);
+        return asset;
+    }
+
     private void validatePin(Account account, String pin) {
         if (!Objects.equals(account.getPin(), pin)) {
             throw ApiException.invalidPin();
         }
     }
 
-    private Asset saveAsset(AssetTransactionRequest transactionRequest, Account account,
+    private Asset saveAsset(AssetPurchaseRequest transactionRequest, Account account,
                             BigDecimal assetQuantity, BigDecimal assetPrice) {
 
         Optional<Asset> assetOpt = assetRepository.findByAssetSymbolAndAccount(
@@ -101,7 +150,7 @@ public class AssetServiceImpl implements AssetService {
         return assetRepository.save(asset);
     }
 
-    private AssetTransaction saveAssetTransaction(AssetTransactionRequest transactionRequest,
+    private AssetTransaction saveAssetTransaction(AssetPurchaseRequest transactionRequest,
                                                   BigDecimal assetQuantity, BigDecimal assetPrice,
                                                   Asset asset) {
         AssetTransaction assetTransaction = AssetTransaction.builder()

@@ -36,4 +36,17 @@ public class Constants {
             - %s: %.2f units purchased at $%.2f
             """;
 
+
+    public static final String MAIL_SALE_ASSET_INITIAL = """
+            Dear Nuwe Test,
+            
+            You have successfully sold %.2f units of %s.
+            
+            Total Gain/Loss: $%.2f
+            
+            Remaining holdings of %s: %.2f units
+            
+            Summary of current assets:
+            """;
+
 }

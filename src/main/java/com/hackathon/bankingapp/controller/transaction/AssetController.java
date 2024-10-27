@@ -1,7 +1,8 @@
 package com.hackathon.bankingapp.controller.transaction;
 
 
-import com.hackathon.bankingapp.dto.request.transaction.AssetTransactionRequest;
+import com.hackathon.bankingapp.dto.request.transaction.AssetPurchaseRequest;
+import com.hackathon.bankingapp.dto.request.transaction.AssetSaleRequest;
 import com.hackathon.bankingapp.services.transaction.AssetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +21,17 @@ public class AssetController {
 
     @PostMapping("/buy-asset")
     public ResponseEntity<String> buyAsset(@Valid @RequestBody
-                                           AssetTransactionRequest assetTransactionRequest) {
+                                           AssetPurchaseRequest assetPurchaseRequest) {
 
-        assetService.buyAsset(assetTransactionRequest);
+        assetService.buyAsset(assetPurchaseRequest);
         return ResponseEntity.ok("Asset purchase successful.");
+    }
+
+    @PostMapping("/sell-asset")
+    public ResponseEntity<String> sellAsset(@Valid @RequestBody
+                                            AssetSaleRequest assetSaleRequest) {
+
+        assetService.sellAsset(assetSaleRequest);
+        return ResponseEntity.ok("Asset sale successful.");
     }
 }

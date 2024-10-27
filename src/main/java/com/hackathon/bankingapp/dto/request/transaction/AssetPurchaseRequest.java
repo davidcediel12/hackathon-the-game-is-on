@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-public record AssetTransactionRequest(@NotBlank String assetSymbol,
-                                      @NotBlank @Pattern(regexp = "\\d{4}") String pin,
-                                      @NotNull @Positive BigDecimal amount) {
+public record AssetPurchaseRequest(@NotBlank String assetSymbol,
+                                   @NotBlank @Pattern(regexp = "\\d{4}") String pin,
+                                   @NotNull @Positive BigDecimal amount) {
 }
