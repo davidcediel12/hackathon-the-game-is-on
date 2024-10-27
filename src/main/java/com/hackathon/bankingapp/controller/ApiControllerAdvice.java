@@ -50,6 +50,10 @@ public class ApiControllerAdvice {
 
                     return new ResponseEntity<>("Invalid email: " + fieldError.getRejectedValue(), HttpStatus.BAD_REQUEST);
                 }
+
+                if (Objects.equals(fieldError.getField(), "pin")) {
+                    return new ResponseEntity<>("PIN cannot be null or empty", HttpStatus.BAD_REQUEST);
+                }
             }
 
 
