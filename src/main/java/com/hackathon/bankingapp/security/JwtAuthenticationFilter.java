@@ -44,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         String uri = request.getRequestURI().replaceFirst("/", "");
-        boolean isUnprotectedPath = UNPROTECTED_PATHS.contains(uri);
+        boolean isUnprotectedPath = UNPROTECTED_PATHS.contains(uri) || uri.startsWith("market");
 
         if (isUnprotectedPath) {
             doFilter(request, response, filterChain);
