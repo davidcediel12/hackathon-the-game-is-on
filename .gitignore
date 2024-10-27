@@ -4,3 +4,7 @@ target/
 .vscode/
 
 **/*~undo-tree~*
+
+docker-compose-local.yml
+**/application-local.properties
+.idea
