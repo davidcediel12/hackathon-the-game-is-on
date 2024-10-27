@@ -27,4 +27,7 @@ public class Account {
 
     @OneToOne(optional = false)
     User user;
+
+    @Column(length = 4)
+    String pin;
 }
