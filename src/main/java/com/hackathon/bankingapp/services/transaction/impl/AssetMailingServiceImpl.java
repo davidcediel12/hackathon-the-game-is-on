@@ -48,7 +48,7 @@ public class AssetMailingServiceImpl implements AssetMailingService {
         }
 
         String finalMailPart = String.format(Locale.US,
-                MAIL_PURCHASE_ASSET_END.formatted(account.getBalance(), totalWorth));
+                MAIL_PURCHASE_ASSET_END, account.getBalance(), totalWorth);
 
         String completeMailBody = initialMailPart + allAssetsString + finalMailPart;
 

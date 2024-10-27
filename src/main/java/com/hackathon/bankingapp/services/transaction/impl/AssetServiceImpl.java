@@ -84,7 +84,7 @@ public class AssetServiceImpl implements AssetService {
             BigDecimal unitsBought = asset.getTotalAssetBought();
 
             averagePriceBought = ((averagePriceBought.multiply(unitsBought)).add(assetQuantity.multiply(assetPrice)))
-                    .divide(averagePriceBought.add(assetQuantity), 16, RoundingMode.HALF_UP);
+                    .divide(newAssetAmount, 16, RoundingMode.HALF_UP);
 
             asset.setAveragePriceBought(averagePriceBought);
             asset.setTotalAssetBought(asset.getTotalAssetBought().add(assetQuantity));
