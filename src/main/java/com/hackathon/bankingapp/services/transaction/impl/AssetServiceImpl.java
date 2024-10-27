@@ -130,7 +130,8 @@ public class AssetServiceImpl implements AssetService {
                 .orElseThrow(() -> errorSellingAsset);
 
         BigDecimal newAssetQuantity = asset.getAssetAmount().subtract(saleRequest.quantity());
-        if (newAssetQuantity.compareTo(BigDecimal.ZERO) < 0) {
+        boolean insufficientQuantity = newAssetQuantity.compareTo(BigDecimal.ZERO) < 0;
+        if (insufficientQuantity) {
             throw errorSellingAsset;
         }
 
