@@ -17,10 +17,9 @@ public class Constants {
             
             You have successfully purchased %f units of %s for a total amount of $%f.
             
-            Current holdings of GOLD: %f units
+            Current holdings of %s: %f units
             
             Summary of current assets:
-            - GOLD: %f units purchased at $%f
             
             """;
 

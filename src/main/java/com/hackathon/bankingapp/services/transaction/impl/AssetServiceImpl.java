@@ -10,6 +10,7 @@ import com.hackathon.bankingapp.repositories.AccountRepository;
 import com.hackathon.bankingapp.repositories.AssetRepository;
 import com.hackathon.bankingapp.repositories.AssetTransactionRepository;
 import com.hackathon.bankingapp.services.customer.AccountService;
+import com.hackathon.bankingapp.services.transaction.AssetMailingService;
 import com.hackathon.bankingapp.services.transaction.AssetService;
 import com.hackathon.bankingapp.services.transaction.MarketPricesService;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class AssetServiceImpl implements AssetService {
     private final AssetRepository assetRepository;
     private final AccountRepository accountRepository;
     private final AssetTransactionRepository assetTransactionRepository;
+    private final AssetMailingService assetMailingService;
 
 
     @Override
@@ -52,10 +54,11 @@ public class AssetServiceImpl implements AssetService {
 
         Asset asset = saveAsset(transactionRequest, account, assetQuantity);
 
-        saveAssetTransaction(transactionRequest, assetQuantity, assetPrice, asset);
+        AssetTransaction assetTransaction = saveAssetTransaction(transactionRequest, assetQuantity, assetPrice, asset);
 
         account.setBalance(newBalance);
         accountRepository.save(account);
+        assetMailingService.sendAssetPurchaseMessage(asset, account, assetTransaction);
     }
 
     private void validatePin(Account account, String pin) {
@@ -84,9 +87,9 @@ public class AssetServiceImpl implements AssetService {
         return assetRepository.save(asset);
     }
 
-    private void saveAssetTransaction(AssetTransactionRequest transactionRequest,
-                                      BigDecimal assetQuantity, BigDecimal assetPrice,
-                                      Asset asset) {
+    private AssetTransaction saveAssetTransaction(AssetTransactionRequest transactionRequest,
+                                                  BigDecimal assetQuantity, BigDecimal assetPrice,
+                                                  Asset asset) {
         AssetTransaction assetTransaction = AssetTransaction.builder()
                 .transactionType(AssetTransactionType.PURCHASE)
                 .amount(assetQuantity)
@@ -95,6 +98,6 @@ public class AssetServiceImpl implements AssetService {
                 .transactionValue(transactionRequest.amount())
                 .build();
 
-        assetTransactionRepository.save(assetTransaction);
+        return assetTransactionRepository.save(assetTransaction);
     }
 }
