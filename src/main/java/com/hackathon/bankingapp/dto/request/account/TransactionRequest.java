@@ -7,6 +7,6 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
 
-public record DepositRequest(@NotBlank @Pattern(regexp = "\\d{4}") String pin,
-                             @NotNull @PositiveOrZero BigDecimal amount) {
+public record TransactionRequest(@NotBlank @Pattern(regexp = "\\d{4}") String pin,
+                                 @NotNull @PositiveOrZero BigDecimal amount) {
 }

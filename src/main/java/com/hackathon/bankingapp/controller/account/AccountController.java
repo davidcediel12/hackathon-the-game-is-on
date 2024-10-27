@@ -1,7 +1,7 @@
 package com.hackathon.bankingapp.controller.account;
 
 
-import com.hackathon.bankingapp.dto.request.account.DepositRequest;
+import com.hackathon.bankingapp.dto.request.account.TransactionRequest;
 import com.hackathon.bankingapp.dto.response.ReducedGenericResponse;
 import com.hackathon.bankingapp.services.transaction.TransactionService;
 import jakarta.validation.Valid;
@@ -22,9 +22,17 @@ public class AccountController {
 
     @PostMapping("/deposit")
     public ResponseEntity<ReducedGenericResponse> depositMoney(@Valid @RequestBody
-                                                               DepositRequest depositRequest) {
+                                                               TransactionRequest transactionRequest) {
 
-        transactionService.depositMoney(depositRequest);
+        transactionService.depositMoney(transactionRequest);
         return ResponseEntity.ok(new ReducedGenericResponse("Cash deposited successfully"));
+    }
+
+    @PostMapping("/withdraw")
+    public ResponseEntity<ReducedGenericResponse> withdrawMoney(@Valid @RequestBody
+                                                                TransactionRequest transactionRequest) {
+
+        transactionService.withdrawMoney(transactionRequest);
+        return ResponseEntity.ok(new ReducedGenericResponse("Cash withdrawn successfully"));
     }
 }

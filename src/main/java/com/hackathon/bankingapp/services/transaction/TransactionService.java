@@ -1,8 +1,10 @@
 package com.hackathon.bankingapp.services.transaction;
 
-import com.hackathon.bankingapp.dto.request.account.DepositRequest;
+import com.hackathon.bankingapp.dto.request.account.TransactionRequest;
 
 public interface TransactionService {
 
-    void depositMoney(DepositRequest depositRequest);
+    void depositMoney(TransactionRequest transactionRequest);
+
+    void withdrawMoney(TransactionRequest transactionRequest);
 }
