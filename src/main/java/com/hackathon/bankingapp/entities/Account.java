@@ -17,17 +17,17 @@ public class Account {
 
     @Id
     @GeneratedValue
-    Long id;
+    private Long id;
 
     @Column(nullable = false)
-    String accountId;
+    private String accountId;
 
     @Column(nullable = false)
-    BigDecimal balance;
+    private BigDecimal balance;
 
     @OneToOne(optional = false)
-    User user;
+    private User user;
 
     @Column(length = 4)
-    String pin;
+    private String pin;
 }

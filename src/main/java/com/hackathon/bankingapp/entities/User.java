@@ -20,21 +20,21 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue
-    Long id;
+    private Long id;
 
     @Column(nullable = false)
-    String name;
+    private String name;
     @Column(nullable = false)
-    String password;
+    private String password;
     @Column(nullable = false, unique = true)
-    String email;
+    private String email;
     @Column(nullable = false)
-    String address;
+    private String address;
     @Column(nullable = false, unique = true)
-    String phoneNumber;
+    private String phoneNumber;
 
     @OneToOne(mappedBy = "user")
-    Account account;
+    private Account account;
 
 
     @Override
