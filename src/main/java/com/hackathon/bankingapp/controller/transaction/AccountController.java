@@ -1,8 +1,8 @@
-package com.hackathon.bankingapp.controller.account;
+package com.hackathon.bankingapp.controller.transaction;
 
 
-import com.hackathon.bankingapp.dto.request.account.TransactionRequest;
-import com.hackathon.bankingapp.dto.request.account.TransferRequest;
+import com.hackathon.bankingapp.dto.request.transaction.TransactionRequest;
+import com.hackathon.bankingapp.dto.request.transaction.TransferRequest;
 import com.hackathon.bankingapp.dto.response.ReducedGenericResponse;
 import com.hackathon.bankingapp.dto.response.transaction.TransactionDetail;
 import com.hackathon.bankingapp.services.transaction.TransactionService;

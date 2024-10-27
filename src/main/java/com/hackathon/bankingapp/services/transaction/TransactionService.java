@@ -1,7 +1,7 @@
 package com.hackathon.bankingapp.services.transaction;
 
-import com.hackathon.bankingapp.dto.request.account.TransactionRequest;
-import com.hackathon.bankingapp.dto.request.account.TransferRequest;
+import com.hackathon.bankingapp.dto.request.transaction.TransactionRequest;
+import com.hackathon.bankingapp.dto.request.transaction.TransferRequest;
 import com.hackathon.bankingapp.dto.response.transaction.TransactionDetail;
 
 import java.util.List;

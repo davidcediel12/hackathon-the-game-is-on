@@ -1,4 +1,4 @@
-package com.hackathon.bankingapp.dto.request.account;
+package com.hackathon.bankingapp.dto.request.transaction;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
