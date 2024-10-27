@@ -37,7 +37,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     public void sendOtp(String email) {
 
         if(!userRepository.existsByEmailIgnoreCase(email)) {
-            return;
+            throw ApiException.accessDenied();
         }
 
         String otpCode = otpGeneratorService.generateOtp();
@@ -64,7 +64,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         User user = userRepository.getReferenceByEmailIgnoreCase(email);
 
         if(user == null) {
-            throw new ApiException("User not found", HttpStatus.BAD_REQUEST);
+            throw ApiException.accessDenied();
         }
         return user;
     }

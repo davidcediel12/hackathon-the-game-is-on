@@ -24,4 +24,8 @@ public class ApiException extends RuntimeException{
         return new ApiException("Invalid PIN", HttpStatus.FORBIDDEN);
     }
 
+    public static ApiException accessDenied() {
+        return new ApiException("Access Denied", HttpStatus.UNAUTHORIZED);
+    }
+
 }

@@ -53,13 +53,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        ApiException deniedAccessException = new ApiException("Access Denied", HttpStatus.UNAUTHORIZED);
         final String authHeaderValue = request.getHeader(authHeader);
 
         try {
             if (authHeaderValue == null || !authHeaderValue.startsWith(authPrefix)
                     || jwtBlacklistManager.isBlackListed(authHeaderValue)) {
-                throw deniedAccessException;
+                throw ApiException.accessDenied();
             }
 
 
@@ -78,10 +77,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
-                    throw deniedAccessException;
+                    throw ApiException.accessDenied();
                 }
             } else {
-                throw deniedAccessException;
+                throw ApiException.accessDenied();
             }
             filterChain.doFilter(request, response);
         } catch (ApiException e) {

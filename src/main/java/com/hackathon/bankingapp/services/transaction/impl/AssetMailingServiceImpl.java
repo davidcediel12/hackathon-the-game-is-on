@@ -9,6 +9,8 @@ import com.hackathon.bankingapp.services.email.EmailService;
 import com.hackathon.bankingapp.services.transaction.AssetMailingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -26,6 +28,7 @@ public class AssetMailingServiceImpl implements AssetMailingService {
 
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     public void sendAssetPurchaseMessage(Asset asset, Account account,
                                          AssetTransaction assetTransaction) {
 
@@ -49,6 +52,7 @@ public class AssetMailingServiceImpl implements AssetMailingService {
 
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     public void sendAssetSellMessage(Asset asset, Account account, AssetTransaction assetTransaction) {
         BigDecimal operationProfits = assetTransaction.getTransactionValue().subtract(
                 asset.getAveragePriceBought().multiply(assetTransaction.getAmount()));

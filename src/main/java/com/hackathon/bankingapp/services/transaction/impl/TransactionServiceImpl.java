@@ -55,7 +55,7 @@ public class TransactionServiceImpl implements TransactionService {
         Account account = getAccountAndValidatePin(transferRequest.pin());
 
         Account destinationAccount = accountRepository.findByAccountId(transferRequest.targetAccountNumber())
-                .orElseThrow(() -> new ApiException("Destination account not found", HttpStatus.BAD_REQUEST));
+                .orElseThrow(ApiException::accessDenied);
 
         subtractMoney(transferRequest.amount(), account);
         addMoney(destinationAccount, transferRequest.amount());
