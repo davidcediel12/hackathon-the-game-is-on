@@ -24,8 +24,8 @@ public class ApiControllerAdvice {
 
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException badCredentialsException) {
-        return new ResponseEntity<>("Bad credentials", HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> handleBadCredentialsException() {
+        return new ResponseEntity<>("Access denied", HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

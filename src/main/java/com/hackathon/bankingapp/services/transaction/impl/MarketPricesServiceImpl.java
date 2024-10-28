@@ -3,7 +3,6 @@ package com.hackathon.bankingapp.services.transaction.impl;
 import com.hackathon.bankingapp.exceptions.ApiException;
 import com.hackathon.bankingapp.services.transaction.MarketPricesService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,7 +25,8 @@ public class MarketPricesServiceImpl implements MarketPricesService {
     public Map<String, BigDecimal> getAssetsPrice() {
 
         ParameterizedTypeReference<Map<String, BigDecimal>> responseType =
-                new ParameterizedTypeReference<>() {};
+                new ParameterizedTypeReference<>() {
+                };
 
         RequestEntity<Void> request = RequestEntity.get("https://faas-lon1-917a94a7.doserverless.co/api/v1/web/fn-e0f31110-7521-4cb9-86a2-645f66eefb63/default/market-prices-simulator")
                 .accept(MediaType.APPLICATION_JSON).build();
@@ -39,7 +39,7 @@ public class MarketPricesServiceImpl implements MarketPricesService {
     public BigDecimal getAssetPrice(String symbol) {
         Map<String, BigDecimal> assetsPrice = getAssetsPrice();
 
-        if(assetsPrice.containsKey(symbol)) {
+        if (assetsPrice.containsKey(symbol)) {
             return assetsPrice.get(symbol);
         }
 
