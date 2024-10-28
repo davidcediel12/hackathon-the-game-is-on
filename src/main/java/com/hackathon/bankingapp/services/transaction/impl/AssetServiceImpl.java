@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -242,6 +243,7 @@ public class AssetServiceImpl implements AssetService {
         Transaction transaction = Transaction.builder()
                 .amount(amount)
                 .transactionType(transactionType)
+                .transactionDate(Instant.now())
                 .sourceAccount(account)
                 .build();
         transactionRepository.save(transaction);
