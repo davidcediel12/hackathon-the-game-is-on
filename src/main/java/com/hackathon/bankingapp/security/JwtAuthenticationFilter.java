@@ -2,6 +2,7 @@ package com.hackathon.bankingapp.security;
 
 import com.hackathon.bankingapp.exceptions.ApiException;
 import com.hackathon.bankingapp.services.authentication.TokenService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -82,7 +83,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 throw ApiException.accessDenied();
             }
             filterChain.doFilter(request, response);
-        } catch (ApiException e) {
+        } catch (ApiException | JwtException e) {
             handlerExceptionResolver.resolveException(request, response, null, e);
         } catch (Exception e) {
             log.error("Error ", e);
