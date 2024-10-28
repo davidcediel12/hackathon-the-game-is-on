@@ -1,5 +1,6 @@
 package com.hackathon.bankingapp.controller.transaction;
 
+import com.hackathon.bankingapp.dto.request.transaction.InvestmentBotRequest;
 import com.hackathon.bankingapp.dto.request.transaction.PaymentSubscriptionRequest;
 import com.hackathon.bankingapp.services.transaction.InvestmentBotService;
 import com.hackathon.bankingapp.services.transaction.PaymentSubscriptionService;

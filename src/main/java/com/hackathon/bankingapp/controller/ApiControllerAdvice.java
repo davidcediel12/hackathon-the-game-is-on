@@ -40,24 +40,35 @@ public class ApiControllerAdvice {
 
 
         for (ObjectError error : errors) {
-            if (error instanceof FieldError fieldError) {
-                if (Objects.equals(fieldError.getCode(), "Password")) {
-
-                    return new ResponseEntity<>(fieldError.getDefaultMessage(), HttpStatus.BAD_REQUEST);
-                }
-
-                if (Objects.equals(fieldError.getCode(), "Email")) {
-
-                    return new ResponseEntity<>("Invalid email: " + fieldError.getRejectedValue(), HttpStatus.BAD_REQUEST);
-                }
-
-                if (Objects.equals(fieldError.getField(), "pin")) {
-                    return new ResponseEntity<>("PIN cannot be null or empty", HttpStatus.BAD_REQUEST);
-                }
+            ResponseEntity<String> fieldError = getCustomErrorMessage(error);
+            if (fieldError != null) {
+                return fieldError;
             }
 
 
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    private static ResponseEntity<String> getCustomErrorMessage(ObjectError error) {
+        if (error instanceof FieldError fieldError) {
+            if (Objects.equals(fieldError.getCode(), "Password")) {
+
+                return new ResponseEntity<>(fieldError.getDefaultMessage(), HttpStatus.BAD_REQUEST);
+            }
+
+            if (Objects.equals(fieldError.getCode(), "Email")) {
+
+                return new ResponseEntity<>("Invalid email: " + fieldError.getRejectedValue(), HttpStatus.BAD_REQUEST);
+            }
+
+            if (Objects.equals(fieldError.getField(), "pin")) {
+                Object rejectedValue = fieldError.getRejectedValue();
+                if (rejectedValue == null || rejectedValue.toString().isBlank()) {
+                    return new ResponseEntity<>("PIN cannot be null or empty", HttpStatus.BAD_REQUEST);
+                }
+            }
+        }
+        return null;
     }
 }
