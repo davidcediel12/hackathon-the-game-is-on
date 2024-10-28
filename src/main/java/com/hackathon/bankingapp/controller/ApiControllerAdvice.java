@@ -72,6 +72,8 @@ public class ApiControllerAdvice {
                 Object rejectedValue = fieldError.getRejectedValue();
                 if (rejectedValue == null || rejectedValue.toString().isBlank()) {
                     return new ResponseEntity<>("PIN cannot be null or empty", HttpStatus.BAD_REQUEST);
+                } else {
+                    return new ResponseEntity<>("Invalid PIN", HttpStatus.FORBIDDEN);
                 }
             }
         }
