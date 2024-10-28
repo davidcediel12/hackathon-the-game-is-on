@@ -1,3 +1,17 @@
+# Solution for the Hackathon the Game is on 
+
+This repo contains the solution that I made for the hackathon.
+
+The requirement to run the command is to have a [Docker Engine](https://docs.docker.com/desktop/install/windows-install/) in the machine, 
+after that execute the following command to start the project:
+
+```console
+docker compose up
+```
+
+All the endpoints can be found in the `nuwe-hackaton.postman_collection`
+file.
+
 # 🏦 The Game is HackathON Java Backend Challenge ☕️
 
 Category   ➡️   Software
