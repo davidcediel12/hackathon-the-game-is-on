@@ -2,14 +2,12 @@ package com.hackathon.bankingapp.services.transaction.impl;
 
 import com.hackathon.bankingapp.dto.request.transaction.AssetPurchaseRequest;
 import com.hackathon.bankingapp.dto.request.transaction.AssetSaleRequest;
-import com.hackathon.bankingapp.entities.Account;
-import com.hackathon.bankingapp.entities.Asset;
-import com.hackathon.bankingapp.entities.AssetTransaction;
-import com.hackathon.bankingapp.entities.AssetTransactionType;
+import com.hackathon.bankingapp.entities.*;
 import com.hackathon.bankingapp.exceptions.ApiException;
 import com.hackathon.bankingapp.repositories.AccountRepository;
 import com.hackathon.bankingapp.repositories.AssetRepository;
 import com.hackathon.bankingapp.repositories.AssetTransactionRepository;
+import com.hackathon.bankingapp.repositories.TransactionRepository;
 import com.hackathon.bankingapp.services.customer.AccountService;
 import com.hackathon.bankingapp.services.transaction.AssetMailingService;
 import com.hackathon.bankingapp.services.transaction.AssetService;
@@ -38,6 +36,7 @@ public class AssetServiceImpl implements AssetService {
     private final AccountRepository accountRepository;
     private final AssetTransactionRepository assetTransactionRepository;
     private final AssetMailingService assetMailingService;
+    private final TransactionRepository transactionRepository;
 
     private record AssetInvestmentResult(Asset asset, AssetTransaction assetTransaction) {
     }
@@ -76,23 +75,6 @@ public class AssetServiceImpl implements AssetService {
     @Transactional
     public void sellAsset(Account account, String assetSymbol, BigDecimal quantity) {
         sellAsset(quantity, assetSymbol, account);
-    }
-
-    private AssetInvestmentResult sellAsset(BigDecimal quantity, String assetSymbol, Account account) {
-        ApiException errorSellingAsset = new ApiException("Internal error occurred while selling the asset.", HttpStatus.INTERNAL_SERVER_ERROR);
-
-        Asset asset = updateAssetQuantity(quantity, assetSymbol, account, errorSellingAsset);
-
-        BigDecimal assetPrice = marketPricesService.getAssetPrice(assetSymbol);
-        BigDecimal transactionValue = assetPrice.multiply(quantity);
-
-        account.setBalance(account.getBalance().add(transactionValue));
-        accountRepository.save(account);
-
-        AssetTransaction assetTransaction = createSellAssetTransaction(
-                quantity, asset, transactionValue, assetPrice);
-
-        return new AssetInvestmentResult(asset, assetTransaction);
     }
 
 
@@ -141,23 +123,30 @@ public class AssetServiceImpl implements AssetService {
 
         account.setBalance(newBalance);
         accountRepository.save(account);
+        saveAccountTransaction(amount, TransactionType.ASSET_PURCHASE, account);
+
         return new AssetInvestmentResult(asset, assetTransaction);
     }
 
+    private AssetInvestmentResult sellAsset(BigDecimal quantity, String assetSymbol, Account account) {
+        ApiException errorSellingAsset = new ApiException("Internal error occurred while selling the asset.", HttpStatus.INTERNAL_SERVER_ERROR);
 
-    private AssetTransaction createSellAssetTransaction(BigDecimal quantity, Asset asset,
-                                                        BigDecimal transactionValue, BigDecimal assetPrice) {
+        Asset asset = updateAssetQuantity(quantity, assetSymbol, account, errorSellingAsset);
 
-        AssetTransaction assetTransaction = AssetTransaction.builder()
-                .asset(asset)
-                .transactionValue(transactionValue)
-                .price(assetPrice)
-                .amount(quantity)
-                .transactionType(AssetTransactionType.SELL)
-                .build();
+        BigDecimal assetPrice = marketPricesService.getAssetPrice(assetSymbol);
+        BigDecimal transactionValue = assetPrice.multiply(quantity);
 
-        return assetTransactionRepository.save(assetTransaction);
+        account.setBalance(account.getBalance().add(transactionValue));
+        accountRepository.save(account);
+
+        AssetTransaction assetTransaction = createSellAssetTransaction(
+                quantity, asset, transactionValue, assetPrice);
+
+
+        saveAccountTransaction(transactionValue, TransactionType.ASSET_SELL, account);
+        return new AssetInvestmentResult(asset, assetTransaction);
     }
+
 
     private Asset updateAssetQuantity(BigDecimal quantity, String assetSymbol,
                                       Account account, ApiException errorSellingAsset) {
@@ -231,5 +220,30 @@ public class AssetServiceImpl implements AssetService {
                 .build();
 
         return assetTransactionRepository.save(assetTransaction);
+    }
+
+    private AssetTransaction createSellAssetTransaction(BigDecimal quantity, Asset asset,
+                                                        BigDecimal transactionValue, BigDecimal assetPrice) {
+
+        AssetTransaction assetTransaction = AssetTransaction.builder()
+                .asset(asset)
+                .transactionValue(transactionValue)
+                .price(assetPrice)
+                .amount(quantity)
+                .transactionType(AssetTransactionType.SELL)
+                .build();
+
+        return assetTransactionRepository.save(assetTransaction);
+    }
+
+
+    private void saveAccountTransaction(BigDecimal amount, TransactionType transactionType, Account account) {
+
+        Transaction transaction = Transaction.builder()
+                .amount(amount)
+                .transactionType(transactionType)
+                .sourceAccount(account)
+                .build();
+        transactionRepository.save(transaction);
     }
 }
