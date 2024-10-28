@@ -18,7 +18,7 @@ public class PasswordValidator implements ConstraintValidator<Password, String> 
             return false;
         }
 
-        boolean notContainsDigitOrSpecialCharacter = !password.matches("^(?=.*(\\d)|(?=.*[\\W_])).*$");
+        boolean notContainsDigitOrSpecialCharacter = !password.matches("^.*\\d+.*$");
         if (notContainsDigitOrSpecialCharacter) {
             message = "Password must contain at least one digit and one special character";
             context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
